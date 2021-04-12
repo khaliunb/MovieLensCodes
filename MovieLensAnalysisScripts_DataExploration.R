@@ -1,3 +1,8 @@
+#### Data exloration scripts and answers
+#### Tested by Khaliun.B 2021.04.05-2021.04.11
+#### According to the MovieLens project instructions
+#### (!) First, there will be a short quiz on the MovieLens data. You can view this quiz as an opportunity to familiarize yourself with the data in order to prepare for your project submission.
+
 #Q1: How many rows and columns are there in the edx dataset?
 dim(edx)
 # Both answers hold out: [1] 9000055       6
@@ -54,3 +59,19 @@ edx %>%
   ggplot(aes(x = rating, y = count)) +
   geom_line()
 #Answer holds out: True
+
+#Added by Khaliun.B 2021.04.11
+#Checking if validation set holds the 90:10 proportion for edx:validation data as stated in initial script provided by Edx (please see file: MovieLensAnalysisScript.R)
+dim(validation)
+#Answer: [1] 999999      6
+#Validation set hold 999999 rows and 6 columns Which is aproximately 11% of edx set 9000055 and 10% of initial data
+
+#Checking structure and of edx set: Commented by Khaliun.B 2021.04.11
+str(edx)
+#Classes ‘data.table’ and 'data.frame':	9000055 obs. of  6 variables: Commented by Khaliun.B 2021.04.11"
+# columns: userId[int] movieId[num] rating[num] timestamp[int] title[chr] genres[chr]: Commented by Khaliun.B 2021.04.11
+
+#Checking structure and of validation set: Commented by Khaliun.B 2021.04.11
+str(validation)
+# Classes ‘data.table’ and 'data.frame':	999999 obs. of  6 variables: Commented by Khaliun.B 2021.04.11"
+# columns: userId[int] movieId[num] rating[num] timestamp[int] title[chr] genres[chr]: Commented by Khaliun.B 2021.04.11"
