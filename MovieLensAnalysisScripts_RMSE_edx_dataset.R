@@ -156,7 +156,8 @@ rmse_results <- data_frame(method = "Just the average", RMSE = naive_rmse)
 
 #This part of the code predicts full movielens data set rating using userId linear model
 #and stores results into variable named fit: Commented by Khaliun.B 2021.04.12
-fit <- lm(rating ~ as.factor(userId), data = movielens)
+#We don't need to train datasets just yet. Therefore commenting the code: Commented by Khaliun.B 2021.04.13
+#fit <- lm(rating ~ as.factor(userId), data = movielens)
 #Code results worked for half minute on 2021.04.2 19:12 and returned 671 result values:
 #Call:
 #lm(formula = rating ~ as.factor(userId), data = movielens)
@@ -274,4 +275,361 @@ rmse_results %>% knitr::kable()
 #                         |Movie Effect Model         | 0.9862839|
 #                         |Movie + User Effects Model | 0.8848688|
 
-######## Wrapping up for 2021.04.12 Tested each code
+#### Wrapping up for 2021.04.12 Tested each code
+
+#### Commented by Khaliun.B 2021.04.13
+#### This part of the code was copied from Machine Learning course
+#### Course/Section 6: Model Fitting and Recommendation Systems/6.3: Regularization
+
+
+#This part of the code displays movie title for 10 movies that have largest 
+# absolute value of deviations from predictions with Movie Effect model
+# in the test_set. Which are named residual: Commented by Khaliun.B 2021.04.13
+test_set %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  mutate(residual = rating - (mu + b_i)) %>%
+  arrange(desc(abs(residual))) %>% 
+  select(title,  residual) %>% slice(1:10) %>% knitr::kable()
+#Code result is following:
+# |title                                            |  residual|
+#  |:------------------------------------------------|---------:|
+#  |Day of the Beast, The (Día de la Bestia, El)     |  4.500000|
+#  |Horror Express                                   | -4.000000|
+#  |No Holds Barred                                  |  4.000000|
+#  |Dear Zachary: A Letter to a Son About His Father | -4.000000|
+#  |Faust                                            | -4.000000|
+#  |Hear My Song                                     | -4.000000|
+#  |Confessions of a Shopaholic                      | -4.000000|
+#  |Twilight Saga: Breaking Dawn - Part 1, The       | -4.000000|
+#  |Taxi Driver                                      | -3.806931|
+#  |Taxi Driver                                      | -3.806931|
+# As we can see, movies that have largest residual error are mostly obscure
+
+#This part of the code selects distinct movieId and title from full movielens dataset
+#and saves them into movie_titles variable: Commented by Khaliun.B 2021.04.13
+movie_titles <- movielens %>% 
+  select(movieId, title) %>%
+  distinct()
+str(movie_titles)
+#Code results for str(movie_titles): 'data.frame':	9066 obs. of  2 variables:
+#                                     $ movieId: int  31 1029 1061 1129 1172 1263 1287 1293 1339 1343 ...
+#                                     $ title  : chr  "Dangerous Minds" "Dumbo" "Sleepers" "Escape from New York" ... 
+
+#This part of the code joins movie_avgs and movie_titles, lists the results in descending order
+# by b_i and displays first 10 movie titles and b_i. The result is movie titles with largest b_i: Commented by Khaliun.B 2021.04.13
+movie_avgs %>% left_join(movie_titles, by="movieId") %>%
+  arrange(desc(b_i)) %>% 
+  select(title, b_i) %>% 
+  slice(1:10) %>%  
+  knitr::kable()
+#Code result is following:
+#|title                                                   |      b_i|
+#|:-------------------------------------------------------|--------:|
+#|Lamerica                                                | 1.457207|
+#|Love & Human Remains                                    | 1.457207|
+#|Enfer, L'                                               | 1.457207|
+#|Picture Bride (Bijo photo)                              | 1.457207|
+#|Red Firecracker, Green Firecracker (Pao Da Shuang Deng) | 1.457207|
+#|Faces                                                   | 1.457207|
+#|Maya Lin: A Strong Clear Vision                         | 1.457207|
+#|Heavy                                                   | 1.457207|
+#|Gate of Heavenly Peace, The                             | 1.457207|
+#|Death in the Garden (Mort en ce jardin, La)             | 1.457207|
+# As we can see from the titles, movies that have largest b_i value are also obscure
+
+#This part of the code joins movie_avgs and movie_titles, lists the results in descending order
+# by b_i and displays first 10 movie titles and b_i. The result is movie titles with lowest b_i: Commented by Khaliun.B 2021.04.13
+movie_avgs %>% left_join(movie_titles, by="movieId") %>%
+  arrange(b_i) %>% 
+  select(title, b_i) %>% 
+  slice(1:10) %>%  
+  knitr::kable()
+#Code result is following:
+#|title                                        |       b_i|
+#|:--------------------------------------------|---------:|
+#|Santa with Muscles                           | -3.042793|
+#|B*A*P*S                                      | -3.042793|
+#|3 Ninjas: High Noon On Mega Mountain         | -3.042793|
+#|Barney's Great Adventure                     | -3.042793|
+#|Merry War, A                                 | -3.042793|
+#|Day of the Beast, The (Día de la Bestia, El) | -3.042793|
+#|Children of the Corn III                     | -3.042793|
+#|Whiteboyz                                    | -3.042793|
+#|Catfish in Black Bean Sauce                  | -3.042793|
+#|Watcher, The                                 | -3.042793|
+# As we can see from the titles, movies that have lowest b_i value are also obscure
+
+#This part of the code joins movie_avgs and movie_titles, lists the results in descending order
+# by b_i and displays first 10 movie titles, b_i and
+#number of times that movie had been rated: Commented by Khaliun.B 2021.04.13
+train_set %>% dplyr::count(movieId) %>% 
+  left_join(movie_avgs) %>%
+  left_join(movie_titles, by="movieId") %>%
+  arrange(desc(b_i)) %>% 
+  select(title, b_i, n) %>% 
+  slice(1:10) %>% 
+  knitr::kable()
+#Code result is following:
+#|title                                                   |      b_i|  n|
+#|:-------------------------------------------------------|--------:|--:|
+#|Lamerica                                                | 1.457207|  1|
+#|Love & Human Remains                                    | 1.457207|  3|
+#|Enfer, L'                                               | 1.457207|  1|
+#|Picture Bride (Bijo photo)                              | 1.457207|  1|
+#|Red Firecracker, Green Firecracker (Pao Da Shuang Deng) | 1.457207|  3|
+#|Faces                                                   | 1.457207|  1|
+#|Maya Lin: A Strong Clear Vision                         | 1.457207|  2|
+#|Heavy                                                   | 1.457207|  1|
+#|Gate of Heavenly Peace, The                             | 1.457207|  1|
+#|Death in the Garden (Mort en ce jardin, La)             | 1.457207|  1|
+#As we can see, these are all movies that have been rated very few times
+
+#This part of the code joins movie_avgs and movie_titles, lists the results in ascending order
+# by b_i and displays first 10 movie titles, b_i and
+#number of times that movie had been rated: Commented by Khaliun.B 2021.04.13
+train_set %>% dplyr::count(movieId) %>% 
+  left_join(movie_avgs) %>%
+  left_join(movie_titles, by="movieId") %>%
+  arrange(b_i) %>% 
+  select(title, b_i, n) %>% 
+  slice(1:10) %>% 
+  knitr::kable()
+#Code result is following:
+#|title                                        |       b_i|  n|
+#|:--------------------------------------------|---------:|--:|
+#|Santa with Muscles                           | -3.042793|  1|
+#|B*A*P*S                                      | -3.042793|  1|
+#|3 Ninjas: High Noon On Mega Mountain         | -3.042793|  1|
+#|Barney's Great Adventure                     | -3.042793|  1|
+#|Merry War, A                                 | -3.042793|  1|
+#|Day of the Beast, The (Día de la Bestia, El) | -3.042793|  1|
+#|Children of the Corn III                     | -3.042793|  1|
+#|Whiteboyz                                    | -3.042793|  1|
+#|Catfish in Black Bean Sauce                  | -3.042793|  1|
+#|Watcher, The                                 | -3.042793|  1|
+# As we can see from the titles, movies that have lowest b_i value all have been rated just one time 
+
+#This part of the code sets value 3 to variable named "lambda": Commented by Khaliun.B 2021.04.13
+lambda <- 3
+
+#This part of the code calculates mean of rating column from train_set and assigns the
+# value to variable mu: Commented by Khaliun.B 2021.04.13
+mu <- mean(train_set$rating)
+#Code result is following: [1] 3.542793
+
+#This part of the code groups train_set by movieId and calculates b_i considering
+#total number of times movie had been rated and lambda. Result is assigned to
+#data frame called movie_reg_avgs: Commented by Khaliun.B 2021.04.13
+movie_reg_avgs <- train_set %>% 
+  group_by(movieId) %>% 
+  summarize(b_i = sum(rating - mu)/(n()+lambda), n_i = n()) 
+#Code results for head(movie_reg_avgs): # A tibble: 6 x 3
+#                                       movieId    b_i   n_i
+#                                       <int>  <dbl> <int>
+#                                         1       1  0.255   189
+#Code results for class(movie_reg_avgs): [1] "tbl_df"     "tbl"        "data.frame"
+
+#This part of the code creates plot that shows distribution of regularized b_i against original b_i
+#circle sizes represent the times movies have been rated: Commented by Khaliun.B 2021.04.13
+data_frame(original = movie_avgs$b_i, 
+           regularlized = movie_reg_avgs$b_i, 
+           n = movie_reg_avgs$n_i) %>%
+  ggplot(aes(original, regularlized, size=sqrt(n))) + 
+  geom_point(shape=1, alpha=0.5)
+#Code result shows in a geom_points in Plots tab  which will be included in final report
+
+#This part of the code joins movie_reg_avgs (which in this case is a regularized model with lambda value of 3)
+# and movie_titles, lists the results in descending order
+# by b_i and displays first 10 movie titles, b_i and
+#number of times that movie had been rated: Commented by Khaliun.B 2021.04.13
+train_set %>%
+  dplyr::count(movieId) %>% 
+  left_join(movie_reg_avgs) %>%
+  left_join(movie_titles, by="movieId") %>%
+  arrange(desc(b_i)) %>% 
+  select(title, b_i, n) %>% 
+  slice(1:10) %>% 
+  knitr::kable()
+#Code result is following:
+#|title                          |       b_i|   n|
+#|:------------------------------|---------:|---:|
+#|All About Eve                  | 0.9271514|  26|
+#|Shawshank Redemption, The      | 0.9206986| 240|
+#|Godfather, The                 | 0.8971328| 153|
+#|Godfather: Part II, The        | 0.8710751| 100|
+#|Maltese Falcon, The            | 0.8597749|  47|
+#|Best Years of Our Lives, The   | 0.8592343|  11|
+#|On the Waterfront              | 0.8467603|  23|
+#|Face in the Crowd, A           | 0.8326899|   4|
+#|African Queen, The             | 0.8322939|  36|
+#|All Quiet on the Western Front | 0.8235200|  11|
+
+#This part of the code joins movie_reg_avgs (which in this case is a penalised model with lambda value of 3)
+# and movie_titles, lists the results in ascending order
+# by b_i and displays first 10 movie titles, b_i and
+#number of times that movie had been rated: Commented by Khaliun.B 2021.04.13
+train_set %>%
+  dplyr::count(movieId) %>% 
+  left_join(movie_reg_avgs) %>%
+  left_join(movie_titles, by="movieId") %>%
+  arrange(b_i) %>% 
+  select(title, b_i, n) %>% 
+  slice(1:10) %>% 
+  knitr::kable()
+#Code result is following:
+#|title                              |       b_i|  n|
+#|:----------------------------------|---------:|--:|
+#|Battlefield Earth                  | -2.064653| 14|
+#|Joe's Apartment                    | -1.779955|  7|
+#|Speed 2: Cruise Control            | -1.689385| 20|
+#|Super Mario Bros.                  | -1.597269| 13|
+#|Police Academy 6: City Under Siege | -1.571379| 10|
+#|After Earth                        | -1.524453|  4|
+#|Disaster Movie                     | -1.521396|  3|
+#|Little Nicky                       | -1.511374| 17|
+#|Cats & Dogs                        | -1.472973|  6|
+#|Blade: Trinity                     | -1.462194| 11|
+#As we can see, penalized model's errors are now much better
+#The total number of ratings per movie are higher than Movie Effect+User Effect model
+#Also the movies are relatively well known
+
+#This part of the code predicts ratings with b_i value considering
+# movieId deviaton average and userId average deviations
+# and penalized by lambda value 3. Regularized version: Commented by Khaliun.B 2021.04.13
+predicted_ratings <- test_set %>% 
+  left_join(movie_reg_avgs, by='movieId') %>%
+  mutate(pred = mu + b_i) %>%
+  .$pred
+#Code results for head(predicted_ratings): [1] 3.535262 3.349446 3.115709 3.565709 3.900526 3.870110
+
+#This part of the code calculates Residual Mean Squared Error
+#for regularized version of predicted_ratings compared against actual test_set$rating
+#considering Movie Effect: Commented by Khaliun.B 2021.04.13
+model_3_rmse <- RMSE(predicted_ratings, test_set$rating)
+model_3_rmse
+#Code result if following: [1] 0.9649457
+
+#This part of the code adds a column to the previously created data frame
+#named "rmse_results" which contained RMSE value for Movie Effect model and User Effect model for
+#test_set from movielens data used for Machine Learning course demonstration
+#and adds Regularized Movie Effect Model RMSE: Commented by Khaliun.B 2021.04.13
+rmse_results <- bind_rows(rmse_results,
+                          data_frame(method="Regularized Movie Effect Model",  
+                                     RMSE = model_3_rmse ))
+rmse_results %>% knitr::kable()
+#Code result is following:
+#|method                         |      RMSE|
+#|:------------------------------|---------:|
+#|Just the average               | 1.0482202|
+#|Movie Effect Model             | 0.9862839|
+#|Movie + User Effects Model     | 0.8848688|
+#|Regularized Movie Effect Model | 0.9649457|
+#As we can see, Regularized Movie Effect Model RMSE went up because it just considers Movie Effect model
+#But lower than non-regularized Movie Effect Model
+
+#This part of the code creates sequence of lamdba values for parameter tuning: Commented by Khaliun.B 2021.04.13
+lambdas <- seq(0, 10, 0.25)
+#Code results for head(lambdas): [1] 0.00 0.25 0.50 0.75 1.00 1.25
+
+#This part of the code calculates mean of rating column from train_set and assigns the
+# value to variable mu: Commented by Khaliun.B 2021.04.13
+mu <- mean(train_set$rating)
+mu
+#Code result is following: [1] 3.542793
+
+#This part of the code calculates sum of the rating-mu, total number of ratings for each movieId
+#and stores the result in data frame named "just_the_sum": Commented by Khaliun.B 2021.04.13
+just_the_sum <- train_set %>% 
+  group_by(movieId) %>% 
+  summarize(s = sum(rating - mu), n_i = n())
+head(just_the_sum)
+#Code result for head(just_the_sum):  # A tibble: 6 x 3
+#                                     movieId     s   n_i
+#                                     <int> <dbl> <int>
+#                                       1       1  48.9   189
+#                                     2       2 -12.3    78
+#                                     3       3 -14.4    45
+#                                     4       4 -12.4    10
+#                                     5       5 -14.0    47
+#                                     6       6  32.0    82
+#                                     ...
+
+#This part of the code calculates RMSE on the test set for each
+#value of "lambdas" sequence as Regularized Movie Effect Model
+#and stores results in "rmses" variable: Commented by Khaliun.B 2021.04.13
+rmses <- sapply(lambdas, function(l){
+  predicted_ratings <- test_set %>% 
+    left_join(just_the_sum, by='movieId') %>% 
+    mutate(b_i = s/(n_i+l)) %>%
+    mutate(pred = mu + b_i) %>%
+    .$pred
+  return(RMSE(predicted_ratings, test_set$rating))
+})
+head(rmses)
+#Code result for head(rmses): [1] 0.9862839 0.9782502 0.9736557 0.9707808 0.9688783 0.9675754
+
+#This part of the code creates qplot of lambdas against rmses: Commented by Khaliun.B 2021.04.13
+qplot(lambdas, rmses)  
+#Code result shows in a qplot in Plots tab  which will be included in final report
+
+#This part of the code shows value of lambda correspoding to minimum value of rmses: Commented by Khaliun.B 2021.04.13
+lambdas[which.min(rmses)]
+#Code result is following: [1] 3
+
+#This part of the code creates sequence of lamdba values for parameter tuning: Commented by Khaliun.B 2021.04.13
+lambdas <- seq(0, 10, 0.25)
+#Code result for head(lambdas): [1] 0.00 0.25 0.50 0.75 1.00 1.25
+
+#This part of the code calculates RMSE on the test set for each
+#value of "lambdas" sequence as Regularized Movie + User Effect
+#on the training set and stores results in "rmses" variable: Commented by Khaliun.B 2021.04.13
+rmses <- sapply(lambdas, function(l){
+  mu <- mean(train_set$rating)
+  b_i <- train_set %>%
+    group_by(movieId) %>%
+    summarize(b_i = sum(rating - mu)/(n()+l))
+  b_u <- train_set %>% 
+    left_join(b_i, by="movieId") %>%
+    group_by(userId) %>%
+    summarize(b_u = sum(rating - b_i - mu)/(n()+l))
+  predicted_ratings <- 
+    test_set %>% 
+    left_join(b_i, by = "movieId") %>%
+    left_join(b_u, by = "userId") %>%
+    mutate(pred = mu + b_i + b_u) %>%
+    .$pred
+  return(RMSE(predicted_ratings, test_set$rating))
+})
+head(rmses)
+#Code result for head(rmses): [1] 0.9077043 0.8981453 0.8925766 0.8890183 0.8866047 0.8849018
+
+#This part of the code creates qplot of lambdas against rmses: Commented by Khaliun.B 2021.04.13
+qplot(lambdas, rmses)  
+#Code result shows in a qplot in Plots tab  which will be included in final report
+
+#This part of the code shows value of lambda correspoding to minimum value of rmses
+#and stores the minimum value in variable "lambda": Commented by Khaliun.B 2021.04.13
+lambda <- lambdas[which.min(rmses)]
+lambda
+#Code result is following: [1] 3.75
+
+#This part of the code adds a column to the previously created data frame
+#named "rmse_results" which contained RMSE value for Movie Effect model, User Effect model,
+#Regularized Movie effect model for test_set from movielens data used for Machine Learning
+#course demonstration and adds Regularized Movie+User Effect Model RMSE: Commented by Khaliun.B 2021.04.13
+rmse_results <- bind_rows(rmse_results,
+                          data_frame(method="Regularized Movie + User Effect Model",  
+                                     RMSE = min(rmses)))
+rmse_results %>% knitr::kable()
+#Code result is following: |method                                |      RMSE|
+#                           |:-------------------------------------|---------:|
+#                           |Just the average                      | 1.0482202|
+#                           |Movie Effect Model                    | 0.9862839|
+#                           |Movie + User Effects Model            | 0.8848688|
+#                           |Regularized Movie Effect Model        | 0.9649457|
+#                           |Regularized Movie + User Effect Model | 0.8806419|
+
+#### Wrapping up for 2021.04.13 Tested each code
+#### Final RMSE is 0.8806419
+#### We need RMSE < 0.86490 for full RMSE points
+#### Maybe I need to add the half points effect
