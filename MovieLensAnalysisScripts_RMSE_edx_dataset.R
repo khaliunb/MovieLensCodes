@@ -632,4 +632,348 @@ rmse_results %>% knitr::kable()
 #### Wrapping up for 2021.04.13 Tested each code
 #### Final RMSE is 0.8806419
 #### We need RMSE < 0.86490 for full RMSE points
-#### Maybe I need to add the half points effect
+#### Maybe I need to add the half points effect?
+
+#### Commented by Khaliun.B 2021.04.14
+#### This part of the code was copied from Machine Learning course
+#### Course/Section 6: Model Fitting and Recommendation Systems/6.3: Regularization
+#### Matrix Factorization: Adresses example of pairing of values
+
+#This part of the code filters users users who have rated movies above 50 times (active voters)
+#who had rated specific movieId #3252 (Scent of a Woman used in example)
+#saves the results into data frame called "train_small": Commented by Khaliun.B 2021.04.14
+train_small <- movielens %>% 
+  group_by(movieId) %>%
+  filter(n() >= 50 | movieId == 3252) %>% ungroup() %>%
+  group_by(userId) %>%
+  filter(n() >= 50) %>% ungroup()
+#Code results for head(train_small) are following: # A tibble: 6 x 7
+#                                                   movieId title                  year genres                    userId rating timestamp
+#                                                   <int> <chr>                 <int> <fct>                      <int>  <dbl>     <int>
+#                                                     1      10 GoldenEye              1995 Action|Adventure|Thriller      2      4 835355493
+#                                                     2      17 Sense and Sensibility  1995 Drama|Romance                  2      5 835355681
+#                                                     3      39 Clueless               1995 Comedy|Romance                 2      5 835355604
+#                                                   ...
+
+#This part of the code selects userId, movieId and rating columns
+#transposes userId column values,
+#converts result into matrix and stores the data in "y": Commented by Khaliun.B 2021.04.14
+y <- train_small %>% 
+  select(userId, movieId, rating) %>%
+  spread(movieId, rating) %>%
+  as.matrix()
+#Code results for dim(y): [1] 292 455
+
+#This part of the code names rows of matrix "y" by the first column values: Commented by Khaliun.B 2021.04.14
+rownames(y)<- y[,1]
+
+#This part of the code reassigns columns and rows of matrix "y" to itself
+#except for the first column. Excludes duplicates of row names
+y <- y[,-1]
+
+#This part of the code names columns of matrix "y" with the matching movie title
+colnames(y) <- with(movie_titles, title[match(colnames(y), movieId)])
+
+#This part of the code subtracts row means of matrix y from matrix y
+y <- sweep(y, 1, rowMeans(y, na.rm=TRUE))
+
+#This part of the code subtracts column means of matrix y from matrix y
+y <- sweep(y, 2, colMeans(y, na.rm=TRUE))
+
+#This part of the code plots values for movies "Godfather, The" on axis x against
+# and "Godfather: Part II, The" on axis y
+m_1 <- "Godfather, The"
+m_2 <- "Godfather: Part II, The"
+qplot(y[ ,m_1], y[,m_2], xlab = m_1, ylab = m_2)
+#Resulting plot shows definite correlation between the two movies.
+
+#This part of the code plots values for movies "Godfather, The" on axis x against
+# and "Goodfellas" on axis y
+m_1 <- "Godfather, The"
+m_3 <- "Goodfellas"
+qplot(y[ ,m_1], y[,m_3], xlab = m_1, ylab = m_3)
+#Resulting plot shows definite correlation between the two movies.
+
+#This part of the code plots values for movies "You've Got Mail" on axis x against
+# and "Sleepless in Seattle" on axis y
+m_4 <- "You've Got Mail" 
+m_5 <- "Sleepless in Seattle" 
+qplot(y[ ,m_4], y[,m_5], xlab = m_4, ylab = m_5)
+#Resulting plot shows definite correlation between Meg Ryan movies.
+
+#This part of the code shows correlation between 
+#"Godfather, The","Godfather: Part II, The","Goodfellas","You've Got Mail","Sleepless in Seattle"
+#movie ratings 
+cor(y[, c(m_1, m_2, m_3, m_4, m_5)], use="pairwise.complete") %>% 
+  knitr::kable()
+#Code results are following:
+#|                        | Godfather, The| Godfather: Part II, The| Goodfellas| You've Got Mail| Sleepless in Seattle|
+#|:-----------------------|--------------:|-----------------------:|----------:|---------------:|--------------------:|
+#|Godfather, The          |      1.0000000|               0.8320756|  0.4541425|      -0.4535093|           -0.3540335|
+#|Godfather: Part II, The |      0.8320756|               1.0000000|  0.5400558|      -0.3377691|           -0.3259897|
+#|Goodfellas              |      0.4541425|               0.5400558|  1.0000000|      -0.4894054|           -0.3672836|
+#|You've Got Mail         |     -0.4535093|              -0.3377691| -0.4894054|       1.0000000|            0.5423584|
+#|Sleepless in Seattle    |     -0.3540335|              -0.3259897| -0.3672836|       0.5423584|            1.0000000|
+#As we can see, there is reverse correlation between group of movies
+#Group1: "Godfather, The","Godfather: Part II, The","Goodfellas" - Al Pacino movies
+#Group2: "You've Got Mail","Sleepless in Seattle" - Meg Ryan movies
+
+set.seed(1)
+options(digits = 2)
+
+#This part of the code creates matrix Q with 1 column
+# and names the rows by the names of the movies "Godfather, The","Godfather: Part II, The",
+#"Goodfellas","You've Got Mail","Sleepless in Seattle"
+Q <- matrix(c(1 , 1, 1, -1, -1), ncol=1)
+rownames(Q) <- c(m_1, m_2, m_3, m_4, m_5)
+
+#This part of the code creates matrix P with 1 column,
+#fills the rows replicating: value 2 by 3 times, value 0 by 5 times and value -2 by 4 times 
+#and names the rows with their ordered number
+P <- matrix(rep(c(2,0,-2), c(3,5,4)), ncol=1)
+rownames(P) <- 1:nrow(P)
+
+#This part of the code multiplies transposed version of matrix Q
+#with matrix P and stores resulting matrix as "X"
+X <- jitter(P%*%t(Q))
+X %>% knitr::kable(align = "c")
+#Code results are following:| Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle |
+#                           |:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|
+#                           |      1.81      |          2.15           |    1.81    |      -1.76      |        -1.81         |
+#                           |      1.90      |          1.91           |    1.91    |      -2.31      |        -1.85         |
+#                           |      2.06      |          2.22           |    1.61    |      -1.82      |        -2.02         |
+#                           |      0.33      |          0.00           |   -0.09    |      -0.07      |         0.29         |
+#                           |     -0.24      |          0.17           |    0.30    |      0.26       |        -0.05         |
+#                           |      0.32      |          0.39           |   -0.13    |      0.12       |        -0.20         |
+#                           |      0.36      |          -0.10          |   -0.01    |      0.23       |        -0.34         |
+#                           |      0.13      |          0.22           |    0.08    |      0.04       |        -0.32         |
+#                           |     -1.90      |          -1.65          |   -2.01    |      2.02       |         1.85         |
+#                           |     -2.35      |          -2.23          |   -2.25    |      2.23       |         2.01         |
+#                           |     -2.24      |          -1.88          |   -1.74    |      1.62       |         2.13         |
+#                           |     -2.26      |          -2.30          |   -1.87    |      1.98       |         1.93         |
+#Code results for dim(X): [1] 12  5
+
+#This part of the code shows correlation of matrix X
+cor(X) %>% knitr::kable(align="c")
+#Code result is following: |                        | Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle |
+#                          |:-----------------------|:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|
+#                          |Godfather, The          |      1.00      |          0.99           |    0.98    |      -0.98      |        -0.99         |
+#                          |Godfather: Part II, The |      0.99      |          1.00           |    0.99    |      -0.98      |        -0.99         |
+#                          |Goodfellas              |      0.98      |          0.99           |    1.00    |      -0.99      |        -0.99         |
+#                          |You've Got Mail         |     -0.98      |          -0.98          |   -0.99    |      1.00       |         0.98         |
+#                          |Sleepless in Seattle    |     -0.99      |          -0.99          |   -0.99    |      0.98       |         1.00         |
+
+#This part of the code shows transposed matrix Q
+t(Q) %>% knitr::kable(align="c")
+#Code result is following: | Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle |
+#                          |:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|
+#                          |       1        |            1            |     1      |       -1        |          -1          |
+
+#This part of the code shows matrix P, transposed for viewing purpose
+t(P) %>% knitr::kable(align="r")
+#Code result is following: |  1|  2|  3|  4|  5|  6|  7|  8|  9| 10| 11| 12|
+#                          |--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+#                          |  2|  2|  2|  0|  0|  0|  0|  0| -2| -2| -2| -2|
+
+set.seed(1)
+options(digits = 2)
+
+#This part of the code repopulates matrix Q with 1 column
+# and names the rows by the names of the movies "Godfather, The","Godfather: Part II, The",
+#"Goodfellas","You've Got Mail","Sleepless in Seattle","Scent of a Woman"
+m_6 <- "Scent of a Woman"
+Q <- cbind(c(1 , 1, 1, -1, -1, -1), 
+           c(1 , 1, -1, -1, -1, 1))
+rownames(Q) <- c(m_1, m_2, m_3, m_4, m_5, m_6)
+
+#This part of the code creates matrix P with 1 column,
+#fills the rows replicating: value 2 by 3 times, value 0 by 5 times and value -2 by 4 times
+#adds an extra column with values c(-1,1,1,0,0,1,1,1,0,-1,-1,-1),
+#divides all the values by 2
+#and names the rows with ordered number of rows from matrix X
+P <- cbind(rep(c(2,0,-2), c(3,5,4)), 
+           c(-1,1,1,0,0,1,1,1,0,-1,-1,-1))/2
+rownames(P) <- 1:nrow(X)
+
+#This part of the code multiplies transposed version of matrix Q
+#with matrix P and stores resulting matrix as "X"
+X <- jitter(P%*%t(Q), factor=1)
+X %>% knitr::kable(align = "c")
+#Code results are following:| Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle | Scent of a Woman |
+#                           |:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|:----------------:|
+#                           |      0.45      |          0.54           |    1.45    |      -0.44      |        -0.45         |      -1.42       |
+#                           |      1.47      |          1.48           |    0.48    |      -1.58      |        -1.46         |      -0.54       |
+#                           |      1.51      |          1.55           |    0.40    |      -1.46      |        -1.50         |      -0.51       |
+#                           |      0.08      |          0.00           |   -0.02    |      -0.02      |         0.07         |      -0.03       |
+#                           |     -0.06      |          0.04           |    0.07    |      0.06       |        -0.01         |       0.03       |
+#                           |      0.58      |          0.60           |   -0.53    |      -0.47      |        -0.55         |       0.45       |
+#                           |      0.59      |          0.48           |   -0.50    |      -0.44      |        -0.59         |       0.50       |
+#                           |      0.53      |          0.56           |   -0.48    |      -0.49      |        -0.58         |       0.55       |
+#                           |     -0.97      |          -0.91          |   -1.00    |      1.01       |         0.96         |       0.92       |
+#                           |     -1.59      |          -1.56          |   -0.56    |      1.56       |         1.50         |       0.58       |
+#                           |     -1.56      |          -1.47          |   -0.43    |      1.40       |         1.53         |       0.47       |
+#                           |     -1.56      |          -1.57          |   -0.47    |      1.50       |         1.48         |       0.57       |
+
+#This part of the code shows correlation of matrix X
+cor(X) %>% knitr::kable(align="c")
+#Code results are following:|                        | Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle | Scent of a Woman |
+#                           |:-----------------------|:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|:----------------:|
+#                           |Godfather, The          |      1.00      |          1.00           |    0.53    |      -1.00      |        -1.00         |      -0.57       |
+#                           |Godfather: Part II, The |      1.00      |          1.00           |    0.55    |      -1.00      |        -1.00         |      -0.59       |
+#                           |Goodfellas              |      0.53      |          0.55           |    1.00    |      -0.55      |        -0.53         |      -0.99       |
+#                           |You've Got Mail         |     -1.00      |          -1.00          |   -0.55    |      1.00       |         1.00         |       0.60       |
+#                           |Sleepless in Seattle    |     -1.00      |          -1.00          |   -0.53    |      1.00       |         1.00         |       0.57       |
+#                           |Scent of a Woman        |     -0.57      |          -0.59          |   -0.99    |      0.60       |         0.57         |       1.00       |
+
+
+#This part of the code shows transposed matrix Q
+t(Q) %>% knitr::kable(align="c")
+#Code result is following:| Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle | Scent of a Woman |
+#                         |:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|:----------------:|
+#                         |       1        |            1            |     1      |       -1        |          -1          |        -1        |
+#                         |       1        |            1            |     -1     |       -1        |          -1          |        1         |
+
+#This part of the code shows matrix P, transposed for viewing purpose
+t(P) %>% knitr::kable(align="c")
+#Code result is following:|  1   |  2  |  3  | 4 | 5 |  6  |  7  |  8  | 9  |  10  |  11  |  12  |
+#                         |:----:|:---:|:---:|:-:|:-:|:---:|:---:|:---:|:--:|:----:|:----:|:----:|
+#                         | 1.0  | 1.0 | 1.0 | 0 | 0 | 0.0 | 0.0 | 0.0 | -1 | -1.0 | -1.0 | -1.0 |
+#                         | -0.5 | 0.5 | 0.5 | 0 | 0 | 0.5 | 0.5 | 0.5 | 0  | -0.5 | -0.5 | -0.5 |
+
+#This part of the code shows correlation between 
+#"Godfather, The","Godfather: Part II, The","Goodfellas",
+#"You've Got Mail","Sleepless in Seattle","Scent of a Woman"
+#movie ratings 
+six_movies <- c(m_1, m_2, m_3, m_4, m_5, m_6)
+tmp <- y[,six_movies]
+cor(tmp, use="pairwise.complete") %>% knitr::kable(align="c")
+#Code results are following:|                        | Godfather, The | Godfather: Part II, The | Goodfellas | You've Got Mail | Sleepless in Seattle | Scent of a Woman |
+#                           |:-----------------------|:--------------:|:-----------------------:|:----------:|:---------------:|:--------------------:|:----------------:|
+#                           |Godfather, The          |      1.00      |          0.83           |    0.45    |      -0.45      |        -0.35         |       0.07       |
+#                           |Godfather: Part II, The |      0.83      |          1.00           |    0.54    |      -0.34      |        -0.33         |       0.14       |
+#                           |Goodfellas              |      0.45      |          0.54           |    1.00    |      -0.49      |        -0.37         |      -0.17       |
+#                           |You've Got Mail         |     -0.45      |          -0.34          |   -0.49    |      1.00       |         0.54         |      -0.20       |
+#                           |Sleepless in Seattle    |     -0.35      |          -0.33          |   -0.37    |      0.54       |         1.00         |      -0.18       |
+#                           |Scent of a Woman        |      0.07      |          0.14           |   -0.17    |      -0.20      |        -0.18         |       1.00       |
+
+#### Commented by Khaliun.B 2021.04.14
+#### This part of the code was copied from Machine Learning course
+#### Course/Section 6: Model Fitting and Recommendation Systems/6.3: Regularization
+#### SVD and PCA: Demonstrates principal component analysis (PCA) or singular value decomposition (SVD).
+
+#This part of the code fills N/As with 0 in matrix y
+y[is.na(y)] <- 0
+
+#This part of the code subtracts matrix y's rowmeans from itself
+y <- sweep(y, 1, rowMeans(y))
+
+#This part of the code performs Principal Component Analysis
+#on matrix y and stores results in matrix "pca"
+pca <- prcomp(y)
+#Code result for class(pca): [1] "prcomp"
+
+#This part of the code diplays dimensions for pca$rotation and then pca$x
+dim(pca$rotation)
+dim(pca$x)
+#Code result for dim(pca$rotation): [1] 454 292
+#Code result for dim(pca$x): [1] 292 292
+
+#This part of the code plots standard deviation of pca analysis result pca$sdev
+plot(pca$sdev)
+#Resulting plot will be included in Final report
+
+#This part of the code creates var_explained variable
+#and plots it
+var_explained <- cumsum(pca$sdev^2/sum(pca$sdev^2))
+plot(var_explained)
+#Code result for str(var_explained): num [1:292] 0.0364 0.064 0.0868 0.1083 0.1284 ...
+#Resulting plot will be included in Final report
+
+library(ggrepel)
+
+#This part of the code creates pcs data frame
+#which contains pca$rotation value and columns named as
+#"Godfather, The","Godfather: Part II, The","Goodfellas",
+#"You've Got Mail","Sleepless in Seattle","Scent of a Woman"
+#movies from matrix y
+pcs <- data.frame(pca$rotation, name = colnames(y))
+str(pcs)
+#Code result for dim(pcs):[1] 454 293
+#Code results for str(pcs): 'data.frame':	454 obs. of  293 variables:
+#                           $ PC1  : num  0.0377 0.0347 0.0157 -0.0165 -0.0248 ...
+#                           $ PC2  : num  0.00761 -0.00865 0.00938 0.05186 0.03457 ...
+#                           ...
+
+#This part of the code plots data frame pcs
+#shows filtered values for PC1 between -0.1 and 0.1
+#PC2 between -0.075 and 0.1
+pcs %>%  ggplot(aes(PC1, PC2)) + geom_point() + 
+  geom_text_repel(aes(PC1, PC2, label=name),
+                  data = filter(pcs, 
+                                PC1 < -0.1 | PC1 > 0.1 | PC2 < -0.075 | PC2 > 0.1))
+#Resulting plot will be included in the Final Report
+
+#This part of the code shows bottom 10 movies ordered by PC1
+pcs %>% select(name, PC1) %>% arrange(PC1) %>% slice(1:10) %>% knitr::kable()
+#Code results are following:|                          |name                      |   PC1|
+#                           |:-------------------------|:-------------------------|-----:|
+#                           |Pulp Fiction              |Pulp Fiction              | -0.16|
+#                           |Seven (a.k.a. Se7en)      |Seven (a.k.a. Se7en)      | -0.14|
+#                           |Fargo                     |Fargo                     | -0.14|
+#                           |Taxi Driver               |Taxi Driver               | -0.13|
+#                           |2001: A Space Odyssey     |2001: A Space Odyssey     | -0.13|
+#                           |Silence of the Lambs, The |Silence of the Lambs, The | -0.13|
+#                           |Clockwork Orange, A       |Clockwork Orange, A       | -0.12|
+#                           |Being John Malkovich      |Being John Malkovich      | -0.11|
+#                           |Fight Club                |Fight Club                | -0.10|
+#                           |Godfather, The            |Godfather, The            | -0.10|
+
+#This part of the code shows top 10 movies ordered by PC1
+pcs %>% select(name, PC1) %>% arrange(desc(PC1)) %>% slice(1:10) %>% knitr::kable()
+#Code results are following: #                                                                                        |name                                                                                    |  PC1|
+#                           |:---------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------|----:|
+#                           |Independence Day (a.k.a. ID4)                                                           |Independence Day (a.k.a. ID4)                                                           | 0.16|
+#                           |Shrek                                                                                   |Shrek                                                                                   | 0.13|
+#                           |Twister                                                                                 |Twister                                                                                 | 0.12|
+#                           |Titanic                                                                                 |Titanic                                                                                 | 0.12|
+#                           |Armageddon                                                                              |Armageddon                                                                              | 0.11|
+#                           |Spider-Man                                                                              |Spider-Man                                                                              | 0.11|
+#                           |Harry Potter and the Sorcerer's Stone (a.k.a. Harry Potter and the Philosopher's Stone) |Harry Potter and the Sorcerer's Stone (a.k.a. Harry Potter and the Philosopher's Stone) | 0.10|
+#                           |Batman Forever                                                                          |Batman Forever                                                                          | 0.10|
+#                           |Forrest Gump                                                                            |Forrest Gump                                                                            | 0.10|
+#                           |Enemy of the State                                                                      |Enemy of the State                                                                      | 0.09|
+
+#This part of the code shows bottom 10 movies ordered by PC2
+pcs %>% select(name, PC2) %>% arrange(PC2) %>% slice(1:10) %>% knitr::kable()
+#Code results are following:|                                              |name                                          |   PC2|
+#                           |:---------------------------------------------|:---------------------------------------------|-----:|
+#                           |Little Miss Sunshine                          |Little Miss Sunshine                          | -0.08|
+#                           |Truman Show, The                              |Truman Show, The                              | -0.08|
+#                           |Slumdog Millionaire                           |Slumdog Millionaire                           | -0.08|
+#                           |Mars Attacks!                                 |Mars Attacks!                                 | -0.07|
+#                           |American Beauty                               |American Beauty                               | -0.07|
+#                           |Amelie (Fabuleux destin d'Amélie Poulain, Le) |Amelie (Fabuleux destin d'Amélie Poulain, Le) | -0.07|
+#                           |City of God (Cidade de Deus)                  |City of God (Cidade de Deus)                  | -0.07|
+#                           |Monty Python's Life of Brian                  |Monty Python's Life of Brian                  | -0.07|
+#                           |Shawshank Redemption, The                     |Shawshank Redemption, The                     | -0.07|
+#                           |Beautiful Mind, A                             |Beautiful Mind, A                             | -0.06|
+
+#This part of the code shows top 10 movies ordered by PC2
+pcs %>% select(name, PC2) %>% arrange(desc(PC2)) %>% slice(1:10) %>% knitr::kable()
+#Code results are following: |                                                   |name                                               |  PC2|
+#                            |:--------------------------------------------------|:--------------------------------------------------|----:|
+#                            |Lord of the Rings: The Two Towers, The             |Lord of the Rings: The Two Towers, The             | 0.34|
+#                            |Lord of the Rings: The Fellowship of the Ring, The |Lord of the Rings: The Fellowship of the Ring, The | 0.33|
+#                            |Lord of the Rings: The Return of the King, The     |Lord of the Rings: The Return of the King, The     | 0.24|
+#                            |Matrix, The                                        |Matrix, The                                        | 0.23|
+#                            |Star Wars: Episode IV - A New Hope                 |Star Wars: Episode IV - A New Hope                 | 0.22|
+#                            |Star Wars: Episode VI - Return of the Jedi         |Star Wars: Episode VI - Return of the Jedi         | 0.19|
+#                            |Star Wars: Episode V - The Empire Strikes Back     |Star Wars: Episode V - The Empire Strikes Back     | 0.17|
+#                            |Spider-Man 2                                       |Spider-Man 2                                       | 0.11|
+#                            |Dark Knight, The                                   |Dark Knight, The                                   | 0.10|
+#                            |X2: X-Men United                                   |X2: X-Men United                                   | 0.09|
+
+#### Wrapping up for 2021.04.14 Tested each code
+#### Understood the codes for Matrix Factorization
+#### Must confess, have no idea what the PCA is about
+#### And still haven't figured out what to do with this analysis
