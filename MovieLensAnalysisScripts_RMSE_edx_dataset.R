@@ -656,7 +656,7 @@ train_small <- movielens %>%
 #                                                   ...
 
 #This part of the code selects userId, movieId and rating columns
-#transposes userId column values,
+#transposes movieId column and sets rating as value for the cells,
 #converts result into matrix and stores the data in "y": Commented by Khaliun.B 2021.04.14
 y <- train_small %>% 
   select(userId, movieId, rating) %>%
@@ -977,3 +977,175 @@ pcs %>% select(name, PC2) %>% arrange(desc(PC2)) %>% slice(1:10) %>% knitr::kabl
 #### Understood the codes for Matrix Factorization
 #### Must confess, have no idea what the PCA is about
 #### And still haven't figured out what to do with this analysis
+
+#### Commented by Khaliun.B 2021.04.15
+#### This part of the code was copied from Textbook Chapter 34 Clustering
+#### It demonstrates how to identify groups of movies that are related
+#### And it is a part of "Unsupervised machine learning"
+#### I can incorporate this into the final model
+#1. Perform Hierarchical Clustering algorithm on the data using hclust
+#2. Identify groupId for each movieId and add the groupId to the movilens10k table (or edx)
+#3. Determine mu's for each group
+#4. Incorporate the mu's into the model
+#5. Calculate RMSE. It should go down
+
+#This part of the code filters out movieIds of top 50 most rated movies from movielens data
+# and assigns the results into data frame named "top"
+top <- movielens %>%
+  group_by(movieId) %>%
+  summarize(n=n(), title = first(title)) %>%
+  top_n(50, n) %>%
+  pull(movieId)
+#Code result for head(top): [1]   1  32  47  50 110 150
+
+#This part of the code filters out users who had rated top 50 most rated movies and
+# with total ratings of above 25 (active raters)
+x <- movielens %>% 
+  filter(movieId %in% top) %>%
+  group_by(userId) %>%
+  filter(n() >= 25) %>%
+  ungroup() %>% 
+  select(title, userId, rating) %>%
+  spread(userId, rating)
+#Code results for head(x):
+## A tibble: 6 x 140
+#title      `8`  `15`  `17`  `19`  `20`  `21`  `22`  `23`  `26`  `30`  `48`  `56`  `68`  `72`  `73`  `75`  `77`
+#<chr>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#  1 Ace Ven…  NA     2    NA       3   1       3  NA     2     0.5     2   3.5    NA  NA    NA     2      NA   3  
+#  2 Aladdin   NA     0.5  NA       3   3.5    NA   2     4    NA       5  NA      NA  NA    NA     5      NA   3.5
+#  3 America…   4.5   4     4.5    NA  NA      NA   4     3.5   4       5  NA       5  NA     4     4.5    NA   3  
+#  4 Apollo …  NA     3    NA       3   3      NA  NA     3.5  NA       5  NA      NA   4     3.5   3.5    NA  NA  
+#  5 Back to…   4     5     4.5     5   3.5     4   4     4.5  NA       5   3.5     4   4     3     5       4   3.5
+#  6 Batman    NA     4    NA       4   4       3   4.5   3.5  NA       4  NA      NA   3.5  NA     4       1   3.5
+#...
+
+#This part of the code populates variable named "row_names"
+#with titles that first removed text ": Episode" and cut down to 20 characters
+row_names <- str_remove(x$title, ": Episode") %>% str_trunc(20)
+#Code results for head(row_names): [1] "Ace Ventura: Pet ..." "Aladdin"              "American Beauty"      "Apollo 13"           
+#                                  [5] "Back to the Future"   "Batman"    
+
+#This part of the converts data frame x into matrix and returns its values to itself
+#except for the titles for columns
+x <- x[,-1] %>% as.matrix()
+#Code result for dim(x): [1]  50 139
+
+#This part of the code subtracts column means of matrix x
+#from each column and ignores NAs while doing this
+x <- sweep(x, 2, colMeans(x, na.rm = TRUE))
+#Code results for x[,1]: [1]    NA    NA  0.24    NA -0.26    NA    NA -0.26    NA    NA    NA    NA -0.26 -0.26  0.24  0.74  0.74 -0.26
+#[19] -1.26    NA    NA    NA -0.76 -0.26 -0.26    NA  0.74    NA    NA -0.26 -0.26 -0.26 -0.26  0.74  0.74  0.74
+#[37]    NA  0.24  0.24    NA -0.76 -0.76 -0.26 -0.26    NA    NA    NA    NA  0.74  0.74
+
+#This part of the code subtracts row means of matrix x
+#from each row and ignores NAs while doing this
+x <- sweep(x, 1, rowMeans(x, na.rm = TRUE))
+#Code result for length(x[1,]): [1] 139
+#Code result for rownames(x): NULL
+
+#This part of the code sets row names for matrix x
+rownames(x) <- row_names
+#Code results for head(rownames(x)): [1] "Ace Ventura: Pet ..." "Aladdin"              "American Beauty"      "Apollo 13"           
+#                                    [5] "Back to the Future"   "Batman"
+
+#This part of the code creates "d" of class "dist" from matrix "x". Prepares data for clustering
+d <- dist(x)
+#Code result for class(d): [1] "dist"
+#Code results for str(d): 'dist' num [1:1225] 14.2 15.5 12.3 12.5 11.9 ...
+#                         - attr(*, "Size")= int 50
+#                         - attr(*, "Labels")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
+#                         - attr(*, "Diag")= logi FALSE
+#                         - attr(*, "Upper")= logi FALSE
+#                         - attr(*, "method")= chr "euclidean"
+#                         - attr(*, "call")= language dist(x = x)
+
+####################################################################################
+#### This part of the code was copied from Textbook 34.1 Hierarchical clustering
+#### Note: k value should be tuned
+####################################################################################
+
+#This part of the code populates variable "h" of "hclust"
+# from "d"
+h <- hclust(d)
+#Code result for class(h): [1] "hclust"
+#Code result for str(hclust): function (d, method = "complete", members = NULL)  
+
+#This part of the code creates plot showing a tree of movie groups
+#We can see the resulting groups using a dendrogram.
+plot(h, cex = 0.65, main = "", xlab = "")
+#Resulting plot will be included in final report
+
+#This part of the code populates integer class variable "groups"
+#with group ids from "h". Value k should be tuned
+groups <- cutree(h, k = 10)
+#Code result for class(groups): [1] "integer"
+#Code result for str(groups):  Named int [1:50] 1 2 3 4 5 6 2 4 4 1 ...
+#                             - attr(*, "names")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
+
+#This part of the code shows names of movies that belong to group 4
+names(groups)[groups==4]
+#Code results are following: [1] "Apollo 13"            "Braveheart"           "Dances with Wolves"   "Forrest Gump"        
+#                             [5] "Good Will Hunting"    "Saving Private Ryan"  "Schindler's List"     "Shawshank Redempt..."
+
+#This part of the code shows names of movies that belong to group 9
+names(groups)[groups==9]
+#Code results are following: [1] "Lord of the Rings..." "Lord of the Rings..." "Lord of the Rings..." "Star Wars IV - A ..."
+#                            [5] "Star Wars V - The..." "Star Wars VI - Re..."
+
+#We can also explore the data to see if there are clusters of movie raters.
+h_2 <- dist(t(x)) %>% hclust()
+
+####################################################################################
+#### This part of the code was copied from Textbook 34.2 k-means
+####################################################################################
+
+#This part of the code populates matrix "x_0" with data from matrix x
+x_0 <- x
+dim(x_0)
+#Code result for dim(x_0): [1]  50 139
+
+#This part of the code fills NAs of the matrix x_0 with value 0
+#The kmeans function included in R-base does not handle NAs. We are using 0's to fill out the NAs
+x_0[is.na(x_0)] <- 0
+#Code results for head(x_0[,3]): Ace Ventura: Pet ...              Aladdin      American Beauty            Apollo 13   Back to the Future 
+#                                 0.00                 0.00                 0.41                 0.00                 0.59 
+#                                 Batman 
+#                                 0.00 
+
+#This part of the code calculates kmeans and assigns the value to variable "k"
+k <- kmeans(x_0, centers = 10)
+#Code results class(k): [1] "kmeans"
+#Code results for str(k): List of 9
+#                         $ cluster     : Named int [1:50] 9 2 3 7 6 4 2 7 7 9 ...
+#                         ..- attr(*, "names")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
+#                         $ centers     : num [1:10, 1:139] -0.7098 -0.1285 -0.0766 0.0417 0.2525 ...
+#                         ..- attr(*, "dimnames")=List of 2
+#                         .. ..$ : chr [1:10] "1" "2" "3" "4" ...
+#                         .. ..$ : chr [1:139] "8" "15" "17" "19" ...
+#                         $ totss       : num 2837
+#                         $ withinss    : num [1:10] 51.7 391.8 166.2 346.7 93.4 ...
+#                         $ tot.withinss: num 1783
+#                         $ betweenss   : num 1054
+#                         $ size        : int [1:10] 3 9 5 8 3 6 9 3 3 1
+#                         $ iter        : int 3
+#                         $ ifault      : int 0
+#                         - attr(*, "class")= chr "kmeans"
+
+#This part of the code assigns group ids calculated by 
+#kmeans to "groups" variable
+groups <- k$cluster
+#Code results for str(groups): Named int [1:50] 9 2 3 7 6 4 2 7 7 9 ...
+#                               - attr(*, "names")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
+
+#This part of the code shows names of movies that belong to group 9
+names(groups)[groups==7]
+#Code results are following: [1] "Apollo 13"            "Braveheart"           "Dances with Wolves"   "E.T. the Extra-Te..."
+#                           [5] "Gladiator"            "Godfather, The"       "Good Will Hunting"    "Saving Private Ryan" 
+#                           [9] "Schindler's List"
+
+#This part of the code calculates kmeans (nstart parameter added) and assigns the value to variable "k"
+k <- kmeans(x_0, centers = 10, nstart = 25)
+
+#### Wrapping up for 2021.04.15 Tested each code
+#### Decided to add Movie groups effect
+#### to the Final model to improve RMSE
