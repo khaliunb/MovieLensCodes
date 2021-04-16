@@ -864,25 +864,25 @@ cor(tmp, use="pairwise.complete") %>% knitr::kable(align="c")
 #This part of the code fills N/As with 0 in matrix y
 y[is.na(y)] <- 0
 
-#This part of the code subtracts matrix y's rowmeans from itself
+#This part of the code subtracts matrix y's rowmeans from itself: Commented by Khaliun.B 2021.04.14
 y <- sweep(y, 1, rowMeans(y))
 
 #This part of the code performs Principal Component Analysis
-#on matrix y and stores results in matrix "pca"
+#on matrix y and stores results in matrix "pca": Commented by Khaliun.B 2021.04.14
 pca <- prcomp(y)
 #Code result for class(pca): [1] "prcomp"
 
-#This part of the code diplays dimensions for pca$rotation and then pca$x
+#This part of the code diplays dimensions for pca$rotation and then pca$x: Commented by Khaliun.B 2021.04.14
 dim(pca$rotation)
 dim(pca$x)
 #Code result for dim(pca$rotation): [1] 454 292
 #Code result for dim(pca$x): [1] 292 292
 
-#This part of the code plots standard deviation of pca analysis result pca$sdev
+#This part of the code plots standard deviation of pca analysis result pca$sdev: Commented by Khaliun.B 2021.04.14
 plot(pca$sdev)
 #Resulting plot will be included in Final report
 
-#This part of the code creates var_explained variable
+#This part of the code creates var_explained variable: Commented by Khaliun.B 2021.04.14
 #and plots it
 var_explained <- cumsum(pca$sdev^2/sum(pca$sdev^2))
 plot(var_explained)
@@ -895,7 +895,7 @@ library(ggrepel)
 #which contains pca$rotation value and columns named as
 #"Godfather, The","Godfather: Part II, The","Goodfellas",
 #"You've Got Mail","Sleepless in Seattle","Scent of a Woman"
-#movies from matrix y
+#movies from matrix y: Commented by Khaliun.B 2021.04.14
 pcs <- data.frame(pca$rotation, name = colnames(y))
 str(pcs)
 #Code result for dim(pcs):[1] 454 293
@@ -906,14 +906,14 @@ str(pcs)
 
 #This part of the code plots data frame pcs
 #shows filtered values for PC1 between -0.1 and 0.1
-#PC2 between -0.075 and 0.1
+#PC2 between -0.075 and 0.1: Commented by Khaliun.B 2021.04.14
 pcs %>%  ggplot(aes(PC1, PC2)) + geom_point() + 
   geom_text_repel(aes(PC1, PC2, label=name),
                   data = filter(pcs, 
                                 PC1 < -0.1 | PC1 > 0.1 | PC2 < -0.075 | PC2 > 0.1))
 #Resulting plot will be included in the Final Report
 
-#This part of the code shows bottom 10 movies ordered by PC1
+#This part of the code shows bottom 10 movies ordered by PC1: Commented by Khaliun.B 2021.04.14
 pcs %>% select(name, PC1) %>% arrange(PC1) %>% slice(1:10) %>% knitr::kable()
 #Code results are following:|                          |name                      |   PC1|
 #                           |:-------------------------|:-------------------------|-----:|
@@ -928,7 +928,7 @@ pcs %>% select(name, PC1) %>% arrange(PC1) %>% slice(1:10) %>% knitr::kable()
 #                           |Fight Club                |Fight Club                | -0.10|
 #                           |Godfather, The            |Godfather, The            | -0.10|
 
-#This part of the code shows top 10 movies ordered by PC1
+#This part of the code shows top 10 movies ordered by PC1: Commented by Khaliun.B 2021.04.14
 pcs %>% select(name, PC1) %>% arrange(desc(PC1)) %>% slice(1:10) %>% knitr::kable()
 #Code results are following: #                                                                                        |name                                                                                    |  PC1|
 #                           |:---------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------|----:|
@@ -943,7 +943,7 @@ pcs %>% select(name, PC1) %>% arrange(desc(PC1)) %>% slice(1:10) %>% knitr::kabl
 #                           |Forrest Gump                                                                            |Forrest Gump                                                                            | 0.10|
 #                           |Enemy of the State                                                                      |Enemy of the State                                                                      | 0.09|
 
-#This part of the code shows bottom 10 movies ordered by PC2
+#This part of the code shows bottom 10 movies ordered by PC2: Commented by Khaliun.B 2021.04.14
 pcs %>% select(name, PC2) %>% arrange(PC2) %>% slice(1:10) %>% knitr::kable()
 #Code results are following:|                                              |name                                          |   PC2|
 #                           |:---------------------------------------------|:---------------------------------------------|-----:|
@@ -958,7 +958,7 @@ pcs %>% select(name, PC2) %>% arrange(PC2) %>% slice(1:10) %>% knitr::kable()
 #                           |Shawshank Redemption, The                     |Shawshank Redemption, The                     | -0.07|
 #                           |Beautiful Mind, A                             |Beautiful Mind, A                             | -0.06|
 
-#This part of the code shows top 10 movies ordered by PC2
+#This part of the code shows top 10 movies ordered by PC2: Commented by Khaliun.B 2021.04.14
 pcs %>% select(name, PC2) %>% arrange(desc(PC2)) %>% slice(1:10) %>% knitr::kable()
 #Code results are following: |                                                   |name                                               |  PC2|
 #                            |:--------------------------------------------------|:--------------------------------------------------|----:|
@@ -990,7 +990,7 @@ pcs %>% select(name, PC2) %>% arrange(desc(PC2)) %>% slice(1:10) %>% knitr::kabl
 #5. Calculate RMSE. It should go down
 
 #This part of the code filters out movieIds of top 50 most rated movies from movielens data
-# and assigns the results into data frame named "top"
+# and assigns the results into data frame named "top": Commented by Khaliun.B 2021.04.15
 top <- movielens %>%
   group_by(movieId) %>%
   summarize(n=n(), title = first(title)) %>%
@@ -999,7 +999,7 @@ top <- movielens %>%
 #Code result for head(top): [1]   1  32  47  50 110 150
 
 #This part of the code filters out users who had rated top 50 most rated movies and
-# with total ratings of above 25 (active raters)
+# with total ratings of above 25 (active raters): Commented by Khaliun.B 2021.04.15
 x <- movielens %>% 
   filter(movieId %in% top) %>%
   group_by(userId) %>%
@@ -1020,30 +1020,30 @@ x <- movielens %>%
 #...
 
 #This part of the code populates variable named "row_names"
-#with titles that first removed text ": Episode" and cut down to 20 characters
+#with titles that first removed text ": Episode" and cut down to 20 characters: Commented by Khaliun.B 2021.04.15
 row_names <- str_remove(x$title, ": Episode") %>% str_trunc(20)
 #Code results for head(row_names): [1] "Ace Ventura: Pet ..." "Aladdin"              "American Beauty"      "Apollo 13"           
 #                                  [5] "Back to the Future"   "Batman"    
 
 #This part of the converts data frame x into matrix and returns its values to itself
-#except for the titles for columns
+#except for the titles for columns: Commented by Khaliun.B 2021.04.15
 x <- x[,-1] %>% as.matrix()
 #Code result for dim(x): [1]  50 139
 
 #This part of the code subtracts column means of matrix x
-#from each column and ignores NAs while doing this
+#from each column and ignores NAs while doing this: Commented by Khaliun.B 2021.04.15
 x <- sweep(x, 2, colMeans(x, na.rm = TRUE))
 #Code results for x[,1]: [1]    NA    NA  0.24    NA -0.26    NA    NA -0.26    NA    NA    NA    NA -0.26 -0.26  0.24  0.74  0.74 -0.26
 #[19] -1.26    NA    NA    NA -0.76 -0.26 -0.26    NA  0.74    NA    NA -0.26 -0.26 -0.26 -0.26  0.74  0.74  0.74
 #[37]    NA  0.24  0.24    NA -0.76 -0.76 -0.26 -0.26    NA    NA    NA    NA  0.74  0.74
 
 #This part of the code subtracts row means of matrix x
-#from each row and ignores NAs while doing this
+#from each row and ignores NAs while doing this: Commented by Khaliun.B 2021.04.15
 x <- sweep(x, 1, rowMeans(x, na.rm = TRUE))
 #Code result for length(x[1,]): [1] 139
 #Code result for rownames(x): NULL
 
-#This part of the code sets row names for matrix x
+#This part of the code sets row names for matrix x: Commented by Khaliun.B 2021.04.15
 rownames(x) <- row_names
 #Code results for head(rownames(x)): [1] "Ace Ventura: Pet ..." "Aladdin"              "American Beauty"      "Apollo 13"           
 #                                    [5] "Back to the Future"   "Batman"
@@ -1065,54 +1065,54 @@ d <- dist(x)
 ####################################################################################
 
 #This part of the code populates variable "h" of "hclust"
-# from "d"
+# from "d": Commented by Khaliun.B 2021.04.15
 h <- hclust(d)
 #Code result for class(h): [1] "hclust"
 #Code result for str(hclust): function (d, method = "complete", members = NULL)  
 
-#This part of the code creates plot showing a tree of movie groups
-#We can see the resulting groups using a dendrogram.
+#This part of the code creates plot showing a tree of movie groups: Commented by Khaliun.B 2021.04.15
+#We can see the resulting groups using a dendrogram.: Explanatory text from Textbook 
 plot(h, cex = 0.65, main = "", xlab = "")
 #Resulting plot will be included in final report
 
 #This part of the code populates integer class variable "groups"
-#with group ids from "h". Value k should be tuned
+#with group ids from "h". Value k should be tuned: Commented by Khaliun.B 2021.04.15
 groups <- cutree(h, k = 10)
 #Code result for class(groups): [1] "integer"
 #Code result for str(groups):  Named int [1:50] 1 2 3 4 5 6 2 4 4 1 ...
 #                             - attr(*, "names")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
 
-#This part of the code shows names of movies that belong to group 4
+#This part of the code shows names of movies that belong to group 4: Commented by Khaliun.B 2021.04.15
 names(groups)[groups==4]
 #Code results are following: [1] "Apollo 13"            "Braveheart"           "Dances with Wolves"   "Forrest Gump"        
 #                             [5] "Good Will Hunting"    "Saving Private Ryan"  "Schindler's List"     "Shawshank Redempt..."
 
-#This part of the code shows names of movies that belong to group 9
+#This part of the code shows names of movies that belong to group 9: Commented by Khaliun.B 2021.04.15
 names(groups)[groups==9]
 #Code results are following: [1] "Lord of the Rings..." "Lord of the Rings..." "Lord of the Rings..." "Star Wars IV - A ..."
 #                            [5] "Star Wars V - The..." "Star Wars VI - Re..."
 
-#We can also explore the data to see if there are clusters of movie raters.
+#We can also explore the data to see if there are clusters of movie raters.: Explanatory text from Textbook
 h_2 <- dist(t(x)) %>% hclust()
 
 ####################################################################################
 #### This part of the code was copied from Textbook 34.2 k-means
 ####################################################################################
 
-#This part of the code populates matrix "x_0" with data from matrix x
+#This part of the code populates matrix "x_0" with data from matrix x: Commented by Khaliun.B 2021.04.15
 x_0 <- x
 dim(x_0)
 #Code result for dim(x_0): [1]  50 139
 
-#This part of the code fills NAs of the matrix x_0 with value 0
-#The kmeans function included in R-base does not handle NAs. We are using 0's to fill out the NAs
+#This part of the code fills NAs of the matrix x_0 with value 0: Commented by Khaliun.B 2021.04.15
+#The kmeans function included in R-base does not handle NAs. We are using 0's to fill out the NAs: Explanatory text from Textbook
 x_0[is.na(x_0)] <- 0
 #Code results for head(x_0[,3]): Ace Ventura: Pet ...              Aladdin      American Beauty            Apollo 13   Back to the Future 
 #                                 0.00                 0.00                 0.41                 0.00                 0.59 
 #                                 Batman 
 #                                 0.00 
 
-#This part of the code calculates kmeans and assigns the value to variable "k"
+#This part of the code calculates kmeans and assigns the value to variable "k": Commented by Khaliun.B 2021.04.15
 k <- kmeans(x_0, centers = 10)
 #Code results class(k): [1] "kmeans"
 #Code results for str(k): List of 9
@@ -1132,20 +1132,179 @@ k <- kmeans(x_0, centers = 10)
 #                         - attr(*, "class")= chr "kmeans"
 
 #This part of the code assigns group ids calculated by 
-#kmeans to "groups" variable
+#kmeans to "groups" variable: Commented by Khaliun.B 2021.04.15
 groups <- k$cluster
 #Code results for str(groups): Named int [1:50] 9 2 3 7 6 4 2 7 7 9 ...
 #                               - attr(*, "names")= chr [1:50] "Ace Ventura: Pet ..." "Aladdin" "American Beauty" "Apollo 13" ...
 
-#This part of the code shows names of movies that belong to group 9
+#This part of the code shows names of movies that belong to group 9: Commented by Khaliun.B 2021.04.15
 names(groups)[groups==7]
 #Code results are following: [1] "Apollo 13"            "Braveheart"           "Dances with Wolves"   "E.T. the Extra-Te..."
 #                           [5] "Gladiator"            "Godfather, The"       "Good Will Hunting"    "Saving Private Ryan" 
 #                           [9] "Schindler's List"
 
-#This part of the code calculates kmeans (nstart parameter added) and assigns the value to variable "k"
+#This part of the code calculates kmeans (nstart parameter added) and assigns the value to variable "k": Commented by Khaliun.B 2021.04.15
 k <- kmeans(x_0, centers = 10, nstart = 25)
 
 #### Wrapping up for 2021.04.15 Tested each code
 #### Decided to add Movie groups effect
 #### to the Final model to improve RMSE
+
+#### Commented by Khaliun.B 2021.04.16
+#### Working on joining the clustered groups data into original dataset
+#### Also, calculating b_gm for each group to incorporate into the final model
+#### The resulting code will be my own
+
+#Sample code for calculating b_gm for further use
+#movie_avgs <- train_set %>% 
+#  group_by(movieId) %>% 
+#  summarize(b_i = mean(rating - mu))
+
+#movie_reg_avgs <- train_set %>% 
+#  group_by(movieId) %>% 
+#  summarize(b_i = sum(rating - mu)/(n()+lambda), n_i = n()) 
+
+#Sample code for performing left join for further use
+#predicted_ratings <- mu + test_set %>% 
+#  left_join(movie_avgs, by='movieId') %>%
+#  .$b_i
+
+########################################################
+#BEGIN: This group of code prepares a cluster with movieIds as rownames from movielens data set
+#with movies rated above 50 times and with users active raters who had rated movies at least 25 times
+#Commented by Khaliun.B 2021.04.16
+########################################################
+
+mur_movieIds <- movielens %>% 
+  group_by(movieId) %>%
+  filter(n() >= 50) %>% ungroup()%>%
+  pull(movieId)
+#Code result for head(mur_movieIds): [1] 1339 2294 3671   10   17   39
+
+x_mur <- movielens %>% 
+  filter(movieId %in% mur_movieIds) %>%
+  group_by(userId) %>%
+  filter(n() >= 25) %>%
+  ungroup() %>% 
+  select(movieId, userId, rating) %>%
+  spread(userId, rating)
+#Code results for str(x_mur): tibble [453 × 457] (S3: tbl_df/tbl/data.frame)
+#                             $ movieId: int [1:453] 1 2 3 5 6 7 10 11 16 17 ...
+#                             $ 2      : num [1:453] NA NA NA NA NA NA 4 NA NA 5 ...
+#                             ...
+
+row_names_mur <- x_mur$movieId
+#Code results for head(row_names_mur): [1] 1 2 3 5 6 7
+
+x_mur <- x_mur[,-1] %>% as.matrix()
+#Code results for x_mur[1:4,1:10]:
+# 2  3  4  5  6  7  8  9 13  15
+# [1,] NA NA NA NA NA  3 NA  4  5 2.0
+# [2,] NA NA NA NA NA NA NA NA NA 2.0
+# [3,] NA NA NA  4 NA NA NA NA NA  NA
+# [4,] NA NA NA NA NA NA NA NA NA 4.5
+
+x_mur <- sweep(x_mur, 2, colMeans(x_mur, na.rm = TRUE))
+#Code results for x_mur[1:4,1:10]:
+# 2  3  4    5  6     7  8    9  13    15
+# [1,] NA NA NA   NA NA -0.57 NA 0.11 1.3 -0.95
+# [2,] NA NA NA   NA NA    NA NA   NA  NA -0.95
+# [3,] NA NA NA 0.12 NA    NA NA   NA  NA    NA
+# [4,] NA NA NA   NA NA    NA NA   NA  NA  1.55
+
+x_mur <- sweep(x_mur, 1, rowMeans(x_mur, na.rm = TRUE))
+#Code results for x_mur[1:4,1:10]%>%knitr::kable(align="c"):
+# | 2  | 3  | 4  |  5   | 6  |  7   | 8  |   9   | 13  |  15   |
+# |:--:|:--:|:--:|:----:|:--:|:----:|:--:|:-----:|:---:|:-----:|
+# | NA | NA | NA |  NA  | NA | -0.7 | NA | -0.02 | 1.1 | -1.08 |
+# | NA | NA | NA |  NA  | NA |  NA  | NA |  NA   | NA  | -0.68 |
+# | NA | NA | NA | 0.84 | NA |  NA  | NA |  NA   | NA  |  NA   |
+# | NA | NA | NA |  NA  | NA |  NA  | NA |  NA   | NA  | 2.09  |
+
+rownames(x_mur) <- row_names_mur
+#Code results for x_mur[1:4,1:10]%>%knitr::kable(align="c"):
+# |   | 2  | 3  | 4  |  5   | 6  |  7   | 8  |   9   | 13  |  15   |
+# |:--|:--:|:--:|:--:|:----:|:--:|:----:|:--:|:-----:|:---:|:-----:|
+# |1  | NA | NA | NA |  NA  | NA | -0.7 | NA | -0.02 | 1.1 | -1.08 |
+# |2  | NA | NA | NA |  NA  | NA |  NA  | NA |  NA   | NA  | -0.68 |
+# |3  | NA | NA | NA | 0.84 | NA |  NA  | NA |  NA   | NA  |  NA   |
+# |5  | NA | NA | NA |  NA  | NA |  NA  | NA |  NA   | NA  | 2.09  |
+
+d_mur <- dist(x_mur)
+#Code results for str(d_mur): 'dist' num [1:102378] 22.2 28.9 27.4 25.4 28.3 ...
+#                             - attr(*, "Size")= int 453
+#                             - attr(*, "Labels")= chr [1:453] "1" "2" "3" "5" ...
+#                             - attr(*, "Diag")= logi FALSE
+#                             - attr(*, "Upper")= logi FALSE
+#                             - attr(*, "method")= chr "euclidean"
+#                             - attr(*, "call")= language dist(x = x_mur)
+
+x_mur[is.na(x_mur)] <- 0
+#Code results for x_mur[1:4,1:10]%>%knitr::kable(align="c"):
+# |   | 2 | 3 | 4 |  5   | 6 |  7   | 8 |   9   | 13  |  15   |
+# |:--|:-:|:-:|:-:|:----:|:-:|:----:|:-:|:-----:|:---:|:-----:|
+# |1  | 0 | 0 | 0 | 0.00 | 0 | -0.7 | 0 | -0.02 | 1.1 | -1.08 |
+# |2  | 0 | 0 | 0 | 0.00 | 0 | 0.0  | 0 | 0.00  | 0.0 | -0.68 |
+# |3  | 0 | 0 | 0 | 0.84 | 0 | 0.0  | 0 | 0.00  | 0.0 | 0.00  |
+# |5  | 0 | 0 | 0 | 0.00 | 0 | 0.0  | 0 | 0.00  | 0.0 | 2.09  |
+
+k_mur <- kmeans(x_mur, centers = 10, nstart = 25)
+summary(k_mur)
+#Code results for str(k_mur): List of 9
+#                             $ cluster     : Named int [1:453] 5 9 7 1 1 3 9 9 1 3 ...
+#                             ..- attr(*, "names")= chr [1:453] "1" "2" "3" "5" ...
+#                             $ centers     : num [1:10, 1:456] -0.013 -0.2001 0.0122 0.114 -0.0661 ...
+#                             ..- attr(*, "dimnames")=List of 2
+#                             .. ..$ : chr [1:10] "1" "2" "3" "4" ...
+#                             .. ..$ : chr [1:456] "2" "3" "4" "5" ...
+#                             $ totss       : num 27599
+#                             $ withinss    : num [1:10] 5567 380 7149 860 1175 ...
+#                             $ tot.withinss: num 24852
+#                             $ betweenss   : num 2747
+#                             $ size        : int [1:10] 108 4 157 7 16 46 58 3 50 4
+#                             $ iter        : int 6
+#                             $ ifault      : int 0
+#                             - attr(*, "class")= chr "kmeans"
+
+groups_mur <- k_mur$cluster
+#Code results for str(groups_mur): Factor w/ 10 levels "1","2","3","4",..: 5 9 7 1 1 3 9 9 1 3 ...
+#                                 - attr(*, "names")= chr [1:453] "1" "2" "3" "5" ...
+#Code results for summary(groups_mur):   1   2   3   4   5   6   7   8   9  10 
+#                                       108   4 157   7  16  46  58   3  50   4 
+
+groups_mur[names(groups_mur)==8665]
+
+#summary(groups_mur)
+#augment(k_mur$cluster,movielens)
+
+movielens
+
+#This part of the code calculates kmeans directly into the original dataset
+#https://stackoverflow.com/questions/32986464/wrangling-clusters-centers-of-kmeans-back-into-original-data-frame
+#Using movielens_km object rather than original dataset for illustrative purposes
+
+x_mur0 <- movielens %>% 
+  filter(movieId %in% mur_movieIds) %>%
+  group_by(userId) %>%
+  filter(n() >= 25) %>%
+  ungroup() %>%
+  filter(!is.na(rating))%>%
+  select(movieId, userId, rating)
+
+k_test<-x_mur0%>%group_by(movieId)%>%do(data.frame(., kclust = kmeans(cbind(.$userId,.$rating),centers=10,nstart=25)$cluster))
+summary(k_test)
+#fviz_cluster(k_mur, data = movielens)
+
+########################################################
+#END: Commented by Khaliun.B 2021.04.16
+########################################################
+
+#This part of the code prepares a list from "groups" data and stores into "murgroups" data frame
+
+
+#This part of the code left joins "murgroups" data frame with
+
+#### Wrapping up for 2021.04.16
+#### Seems like we don't need to use all the matrices for clustering.
+#### However, we need to demonstrate the results in the Final Report
+#### Success! found the way to perform kmeans clustering on the original data frame
