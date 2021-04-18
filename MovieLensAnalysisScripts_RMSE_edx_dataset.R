@@ -7,6 +7,12 @@
 
 #### The final model follows the Movie + User Effects Model: Yu,i=μ+bi+bu+ϵu,i
 
+#This part of the code added by Khaliun.B 2021.04.17. library factoextra is needed
+#for fviz_cluster() function for creating cluster plots in
+#file: MovieLensAnalysisScripts_RMSE_edx_dataset.R
+if(!require(factoextra)) install.packages("factoextra", repos = "http://cran.us.r-project.org")
+#
+
 library(dslabs)
 library(tidyverse)
 library(caret)
@@ -1277,12 +1283,9 @@ groups_mur[names(groups_mur)==8665]
 #summary(groups_mur)
 #augment(k_mur$cluster,movielens)
 
-movielens
-
 #This part of the code calculates kmeans directly into the original dataset
 #https://stackoverflow.com/questions/32986464/wrangling-clusters-centers-of-kmeans-back-into-original-data-frame
 #Using movielens_km object rather than original dataset for illustrative purposes
-
 x_mur0 <- movielens %>% 
   filter(movieId %in% mur_movieIds) %>%
   group_by(userId) %>%
@@ -1308,3 +1311,80 @@ summary(k_test)
 #### Seems like we don't need to use all the matrices for clustering.
 #### However, we need to demonstrate the results in the Final Report
 #### Success! found the way to perform kmeans clustering on the original data frame
+
+#### Commented by Khaliun.B 2021.04.17
+#### Working on kmeans calculation further
+#### (!) Compare the clustering plot for kmeans both for the matrix and dataframe approach
+#### If clusterings are similar, will continue with the model
+
+#First, we will use create on-dataset kmeans groups for the same data structure we used
+#for matrix approach
+x_mur1 <- movielens %>% 
+  filter(movieId %in% mur_movieIds) %>%
+  group_by(userId) %>%
+  filter(n() >= 25) %>%
+  ungroup() %>%
+  select(movieId, userId, rating)
+#This part of the code is currently commented. But it could be of help if we change the dataset: Commented by Khaliun.B 2021.04.17
+#x_mur1 <- na.omit(x_mur1) 
+#x_mur1 <- scale(x_mur1)
+#head(x_mur1)
+#x_mur1[is.na(x_mur1)] <- 0
+#x_mur1%>%cbind(.[,{1:ncol(x_mur1)-1}])
+#x_mur1%>%group_by(movieId)%>%do(data.frame(., kclust = kmeans(cbind(.[,{1:ncol(x_mur1)-1}])),centers=10,nstart=25)$cluster)
+#k_test1<-x_mur1%>%group_by(movieId)%>%do(data.frame(., kclust = kmeans(cbind(.[[2,3]]),centers=10,nstart=25)$cluster))
+#k_test1<-x_mur1%>%group_by(movieId)%>%do(data.frame(., kclust = kmeans(cbind(.$userId,.$rating),centers=10,nstart=25)$cluster))
+#library(broom)
+#k_test1<-k_test1%>%do(augment(kmeans(cbind(.$userId,.$rating),centers=10,nstart=25), .))
+#summary(k_test1)
+
+#Then, we will create plots to compare the clustering images for both matrix and dataframe
+#Remember, we are using groups_mur <- k_mur$cluster data for comparison
+#library(factoextra)
+
+#distance <- get_dist(k_mur)
+#fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+k_mur1<-kmeans(x_mur,centers=10,nstart=25)
+k_mur1<-factor(k_mur1$cluster)
+class(k_mur1)
+names(k_mur1)
+
+summary(k_mur1)
+length(names(k_mur1))
+
+#x_mur1%>%filter(movieId %in% names(k_mur1))%>%mutate(kgroup=max(as.integer(k_mur1[names(k_mur1)==movieId])))%>%summary()
+
+#summary(k_mur1)
+#x_mur1%>%mutate(kclust=map2(x_mur,movieId,~kmeans(cbind(.),centers=10,nstart=25)%>% pluck('cluster')))
+#fviz_cluster(k_test1$kclust, data = k_test1)
+
+#If results are the same, we will integrate the dataframe into original data and test out
+# RMSE for the final model:
+#(!) They are not the same. Further inspecting ways to cluster the right way
+
+#### Wrapping up for 2021.04.17: Commented by Khaliun.B 20210418 01:07
+
+#### Commented by Khaliun.B 2021.04.18
+#### Working on figuring out how to convert factor to dataset my own way
+#### Remember we are working with k_mur1 factor
+
+temp1<-data.frame(movieId=as.integer(names(k_mur1)))
+#Checking if the length of movieId is the same as the factor names()
+length(temp1$movieId)
+
+#Mutate group numbers back to the dataset
+temp1<-temp1%>%mutate(kgroup=as.integer(k_mur1[names(k_mur1)==.$movieId]))
+head(temp1)
+
+#Checking if the groups had been assigned the right way
+temp1%>%filter(kgroup==8)
+names(k_mur1)[k_mur1==8]
+
+#Mutate groups back to original data
+x_mur_g <- x_mur1 %>% 
+  left_join(temp1, by='movieId')
+
+#Checking the resulting data frame
+summary(x_mur_g)
+
