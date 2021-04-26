@@ -5,7 +5,9 @@
 #### (!) Second, you will train a machine learning algorithm using the inputs in one subset to predict movie ratings in the validation set.
 #### 25 points: RMSE < 0.86490
 
-#### The final model follows the Regularized Movie + User Effects Model: Yu,i=μ+bi+bu+ϵu,i
+#### (!) You should split the edx data into separate training and test sets to design and test your algorithm.
+
+#### (!) The validation data (the final hold-out test set) should NOT be used for training, developing, or selecting your algorithm and it should ONLY be used for evaluating the RMSE of your final algorithm.
 
 #This part of the code added by Khaliun.B 2021.04.17. library factoextra is needed
 #for fviz_cluster() function for creating cluster plots in
@@ -14,12 +16,10 @@
 #
 
 library(dslabs)
-library(tidyverse)
-library(caret)
-data("movielens")
 
-#Original movielens data used for Machine Learning course demonstration has one extra column named "year". And also the columns are in different order than MovieLens 10K data used for this project: Commented by Khaliun.B 2021.04.12
-head(movielens)
+#This part of the code picks 10'000 random samples from edx data set and assigns them to movielens data set
+movielens <- sample(edx,10000,replace=TRUE)
+
 
 #This part of the code shows distinct userId and distinct movieIds in movielens data used for Machine Learning course demonstration: Commented by Khaliun.B 2021.04.12
 movielens %>%
@@ -54,6 +54,8 @@ tab %>% knitr::kable()
 #                           |------:|------------:|------------:|-------------------------:|-------------------------:|----------------------------------:|
 #                           |     13|          5.0|          3.5|                       4.5|                        NA|                                 NA|
 #                           ...
+
+rafalib::mypar()
 
 #This part of the code samples 100 random and unique userIds from movielens data used for Machine Learning course demonstration and puts the userIds in users variable of integer class: Commented by Khaliun.B 2021.04.12
 users <- sample(unique(movielens$userId), 100)
@@ -102,169 +104,6 @@ movielens %>%
 #This means most users rarely give above 300 ratings in total.
 #And users who rate the movies usually give below 100 ratings.
 
-################################################################################
-#### BEGIN: This group of code performs kmeans clustering for movielens data
-#### Commented by Khaliun.B 2021.04.18
-################################################################################
-
-#### Commented by Khaliun.B 2021.04.15
-#### This part of the code was copied from Textbook Chapter 34 Clustering
-#### It demonstrates how to identify groups of movies that are related
-#### And it is a part of "Unsupervised machine learning"
-#### I can incorporate this into the final model
-#- Identify groupId for each movieId and add the groupId to the movilens10k table (or edx)
-#- Determine mu's for each group
-#- Incorporate the mu's into the model
-#- Calculate RMSE. It should go down
-
-####################################################################################
-#### Creating k-means clusters
-####################################################################################
-
-#This part of the code filters out movieIds that were rated at least 25 times from movielens data
-# and assigns the results into data frame named "top": Commented by Khaliun.B 2021.04.15
-movies_kmeans <- movielens %>%
-  group_by(movieId) %>%
-  summarize(n=n(), title = first(title)) %>%
-  filter(n>=50) %>%
-  pull(movieId)
-#Code result for head(top): [1]   1  32  47  50 110 150
-
-#This part of the code filters out users who had rated top 50 most rated movies and
-# with total ratings of above 25 (active raters): Commented by Khaliun.B 2021.04.15
-x <- movielens %>% 
-  filter(movieId %in% movies_kmeans) %>%
-  group_by(userId) %>%
-  filter(n() >= 50) %>%
-  ungroup() %>% 
-  select(movieId,title, userId, rating) %>%
-  spread(userId, rating)
-#Code results for head(x):
-#movieId title    `8`  `15`  `17`  `19`  `20`  `21`  `22`  `23`  `26`  `30`  `48`  `56`  `68`  `72`  `73`  `75`
-#<int> <chr>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-#  1       1 Toy S…    NA     2  NA       3   3.5    NA  NA     3     5       4     4     4     4   3.5   5       3
-#  2      32 Twelv…     5     4   4.5     3   2.5     4   4.5   4     4.5     2    NA    NA    NA  NA     5       4
-#  3      47 Seven…     5     5   5       5  NA       4   3.5   4.5   4.5     4    NA     4    NA   3.5   5      NA
-#  4      50 Usual…     5     5   5       4  NA      NA  NA     4     4.5     5    NA     4    NA   4     5      NA
-#  5     110 Brave…     4     3  NA       3   2      NA  NA     3.5  NA       5     4    NA    NA   3.5   4      NA
-#  6     150 Apoll…    NA     3  NA       3   3      NA  NA     3.5  NA       5    NA    NA     4   3.5   3.5    NA
-# ...
-
-#This part of the code populates variable named "row_names"
-#with titles that first removed text ": Episode" and cut down to 20 characters: Commented by Khaliun.B 2021.04.15
-row_names <- x$title
-row_movieIds <- x$movieId
-#Code results for head(row_names): [1] "Ace Ventura: Pet ..." "Aladdin"              "American Beauty"      "Apollo 13"           
-#                                  [5] "Back to the Future"   "Batman"    
-
-#This part of the converts data frame x into matrix and returns its values to itself
-#except for the titles for columns: Commented by Khaliun.B 2021.04.15
-x_0 <- x[,-1]
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-#  |               title                | 8  | 15 | 17  | 19 | 20  | 21 | 22  | 23  | 26  |
-#  |:----------------------------------:|:--:|:--:|:---:|:--:|:---:|:--:|:---:|:---:|:---:|
-#  |             Toy Story              | NA | 2  | NA  | 3  | 3.5 | NA | NA  | 3.0 | 5.0 |
-#  | Twelve Monkeys (a.k.a. 12 Monkeys) | 5  | 4  | 4.5 | 3  | 2.5 | 4  | 4.5 | 4.0 | 4.5 |
-#  |        Seven (a.k.a. Se7en)        | 5  | 5  | 5.0 | 5  | NA  | 4  | 3.5 | 4.5 | 4.5 |
-#  |        Usual Suspects, The         | 5  | 5  | 5.0 | 4  | NA  | NA | NA  | 4.0 | 4.5 |
-
-x_0 <- x_0[,-1] %>% as.matrix()
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-#  | 8  | 15 | 17  | 19 | 20  | 21 | 22  | 23  | 26  | 30 |
-#  |:--:|:--:|:---:|:--:|:---:|:--:|:---:|:---:|:---:|:--:|
-#  | NA | 2  | NA  | 3  | 3.5 | NA | NA  | 3.0 | 5.0 | 4  |
-#  | 5  | 4  | 4.5 | 3  | 2.5 | 4  | 4.5 | 4.0 | 4.5 | 2  |
-#  | 5  | 5  | 5.0 | 5  | NA  | 4  | 3.5 | 4.5 | 4.5 | 4  |
-#  | 5  | 5  | 5.0 | 4  | NA  | NA | NA  | 4.0 | 4.5 | 5  |
-#Code results for dim(x_0):
-dim(x_0)
-
-#This part of the code subtracts column means of matrix x
-#from each column and ignores NAs while doing this: Commented by Khaliun.B 2021.04.15
-x_0 <- sweep(x_0, 2, colMeans(x_0, na.rm = TRUE))
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-# |  8   |  15   |  17  |  19   |  20   |  21  |  22   |  23  |  26  |  30   |
-# |:----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|:----:|:----:|:-----:|
-# |  NA  | -1.52 |  NA  | -0.78 | 0.67  |  NA  |  NA   | -1.0 | 1.45 | -0.27 |
-# | 0.74 | 0.48  | 0.71 | -0.78 | -0.33 | 0.31 | 0.42  | 0.0  | 0.95 | -2.27 |
-# | 0.74 | 1.48  | 1.21 | 1.22  |  NA   | 0.31 | -0.58 | 0.5  | 0.95 | -0.27 |
-# | 0.74 | 1.48  | 1.21 | 0.22  |  NA   |  NA  |  NA   | 0.0  | 0.95 | 0.73  |
-
-#This part of the code subtracts row means of matrix x
-#from each row and ignores NAs while doing this: Commented by Khaliun.B 2021.04.15
-x_0 <- sweep(x_0, 1, rowMeans(x_0, na.rm = TRUE))
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-#  |  8   |  15   |  17  |  19   |  20   |  21  |  22   |  23   |  26  |  30   |
-#  |:----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|
-#  |  NA  | -1.48 |  NA  | -0.74 | 0.71  |  NA  |  NA   | -0.96 | 1.49 | -0.23 |
-#  | 0.71 | 0.45  | 0.68 | -0.81 | -0.36 | 0.28 | 0.39  | -0.03 | 0.92 | -2.30 |
-#  | 0.54 | 1.28  | 1.01 | 1.02  |  NA   | 0.11 | -0.78 | 0.30  | 0.75 | -0.47 |
-#  | 0.33 | 1.07  | 0.80 | -0.19 |  NA   |  NA  |  NA   | -0.41 | 0.54 | 0.32  |
-
-#This part of the code sets row names for matrix x: Commented by Khaliun.B 2021.04.15
-#Currently using titles as row names for illustrative purposes to view titles in heatmap
-rownames(x_0) <- row_names
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-#  |                     |  8   |  15   |  17  |  19   |  20   |  21  |  22   |  23   |  26  |  30   |
-#  |:--------------------|:----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|
-#  |Toy Story            |  NA  | -1.48 |  NA  | -0.74 | 0.71  |  NA  |  NA   | -0.96 | 1.49 | -0.23 |
-#  |Twelve Monkeys (a... | 0.71 | 0.45  | 0.68 | -0.81 | -0.36 | 0.28 | 0.39  | -0.03 | 0.92 | -2.30 |
-#  |Seven (a.k.a. Se7en) | 0.54 | 1.28  | 1.01 | 1.02  |  NA   | 0.11 | -0.78 | 0.30  | 0.75 | -0.47 |
-#  |Usual Suspects, The  | 0.33 | 1.07  | 0.80 | -0.19 |  NA   |  NA  |  NA   | -0.41 | 0.54 | 0.32  |
-
-#This part of the code fills NAs of the matrix x_0 with value 0: Commented by Khaliun.B 2021.04.15
-#The kmeans function included in R-base does not handle NAs. We are using 0's to fill out the NAs: Explanatory text from Textbook
-x_0[is.na(x_0)] <- 0
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-
-#This part of the code reassigns rownames as movieIds as a preparation to mutate the groups back
-#to original data frame
-rownames(x_0) <- row_movieIds
-#Code results for x_0[1:4,1:10]%>%knitr::kable(align="c"):
-#  |   |  8   |  15   |  17  |  19   |  20   |  21  |  22   |  23   |  26  |  30   |
-#  |:--|:----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|:-----:|:----:|:-----:|
-#  |1  | 0.00 | -1.48 | 0.00 | -0.74 | 0.71  | 0.00 | 0.00  | -0.96 | 1.49 | -0.23 |
-#  |32 | 0.71 | 0.45  | 0.68 | -0.81 | -0.36 | 0.28 | 0.39  | -0.03 | 0.92 | -2.30 |
-#  |47 | 0.54 | 1.28  | 1.01 | 1.02  | 0.00  | 0.11 | -0.78 | 0.30  | 0.75 | -0.47 |
-#  |50 | 0.33 | 1.07  | 0.80 | -0.19 | 0.00  | 0.00 | 0.00  | -0.41 | 0.54 | 0.32  |
-
-#This part of the code recalculates k mutate the groups back to original data frame
-k <- kmeans(x_0, centers = 10, nstart=25)
-summary(k)
-
-#This part of the code assigns group ids calculated by 
-#kmeans to "groups" variable: Commented by Khaliun.B 2021.04.15
-groups <- factor(k$cluster)
-#Code results for summary(groups)
-#Code results for length(names(groups))
-
-temp_g<-data.frame(movieId=as.integer(names(groups)))
-#Checking if the length of movieId is the same as the factor names()
-length(temp_g$movieId)
-#Code results:
-
-#Mutate group numbers back to the dataset
-temp_g<-temp_g%>%mutate(mgroup=as.integer(groups[names(groups)==.$movieId]))
-#Code results for head(temp_g):
-
-#Checking if the groups had been assigned the right way
-temp_g%>%filter(mgroup==7)
-names(groups)[groups==7]
-
-#Mutate groups back to original data
-movielens <- movielens %>% 
-  left_join(temp_g, by='movieId')
-
-#Checking the resulting data frame
-summary(x_mur_g)
-
-#x_mur_g%>%filter(mgroup==15)%>%group_by(movieId,title,kgroup)%>%summarize(n=n(),mu=mean(rating))%>%select(movieId,title,mu,n,kgroup)
-
-################################################################################
-#### END: This group of code performs kmeans clustering for movielens data
-#### Commented by Khaliun.B 2021.04.18
-################################################################################
-
 #This part of the code divides movielens data used for Machine Learning course demonstration into
 # 80%:20% training set named "train_set" and test set named "train_set": Commented by Khaliun.B 2021.04.12
 set.seed(755)
@@ -280,8 +119,7 @@ test_set <- movielens[test_index,]
 #and second using userId: Commented by Khaliun.B 2021.04.12
 test_set <- test_set %>% 
   semi_join(train_set, by = "movieId") %>%
-  semi_join(train_set, by = "userId") %>%
-  semi_join(train_set, by = "mgroup")
+  semi_join(train_set, by = "userId")
 #Code results for dim(test_set) after semi_joins with train_set: [1] 19331     7
 #This process as excluded 671 rows that were present in training set from test set
 
@@ -302,18 +140,12 @@ rmses <- sapply(lambdas, function(l){
     left_join(b_i, by="movieId") %>%
     group_by(userId) %>%
     summarize(b_u = sum(rating - b_i - mu)/(n()+l))
-  b_gi <- train_set %>%
-    left_join(b_i, by="movieId") %>%
-    left_join(b_u, by = "userId") %>%
-    group_by(mgroup) %>%
-    summarize(b_gi = sum(rating - b_i - b_u - mu)/(n()+l))
-  #Code results for summary(movie_group_avgs):
-  predicted_ratings <- 
+  fit <- lm(rating ~ as.factor(userId), data = movielens)
+    predicted_ratings <- 
     test_set %>% 
     left_join(b_i, by = "movieId") %>%
     left_join(b_u, by = "userId") %>%
-    left_join(b_gi, by = "mgroup")%>%
-    mutate(pred = mu + b_i + b_u + b_gi) %>%
+    mutate(pred = mu + b_i + b_u) %>%
     .$pred
   return(RMSE(predicted_ratings, test_set$rating))
 })
@@ -334,6 +166,8 @@ lambda
 #Regularized Movie effect model for test_set from movielens data used for Machine Learning
 #course demonstration and adds Regularized Movie+User Effect Model RMSE: Commented by Khaliun.B 2021.04.13
 rmse_results <- bind_rows(rmse_results,
-                          data_frame(method="Regularized Movie + User Effect Model for Lambda",
+                          data_frame(method="Regularized Movie + User Effect Model",
                                      RMSE = min(rmses)))
 rmse_results %>% knitr::kable()
+
+#########################################

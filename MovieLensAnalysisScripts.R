@@ -69,3 +69,26 @@ edx <- rbind(edx, removed)
 
 # This part of the code removes variables used for "edx" and "validation" data sets  other than "edx" and "validation": Commented by Khaliun.B 2021.04.11
 rm(dl, ratings, movies, test_index, temp, movielens, removed)
+
+#This part of the code picks 10'000 random samples from edx data set and assigns them to movielens data set for analysis and test purposes: Commented by Khaliun.B 2021.04.24
+movielens <- sample_n(edx,10000)
+summary(movielens)
+
+#This part of the code divides movielens data used for Machine Learning course demonstration into
+# 80%:20% training set named "train_set" and test set named "train_set": Commented by Khaliun.B 2021.04.12
+set.seed(755)
+test_index <- createDataPartition(y = movielens$rating, times = 1,
+                                  p = 0.2, list = FALSE)
+train_set <- movielens[-test_index,]
+test_set <- movielens[test_index,]
+#Code results for length(test_index); total length of test_index: [1] 20002
+#Code results for dim(train_set); training set has 80'002 rows and 7 columns: [1] 80002     7
+#Code results for dim(test_set); test set has 20'002 rows and 7 columns: [1] 20002     7
+
+#This part of the code does the semi-joins test_set with training set first using movieId
+#and second using userId: Commented by Khaliun.B 2021.04.12
+test_set <- test_set %>% 
+  semi_join(train_set, by = "movieId") %>%
+  semi_join(train_set, by = "userId")
+#Code results for dim(test_set) after semi_joins with train_set: [1] 19331     7
+#This process as excluded 671 rows that were present in training set from test set

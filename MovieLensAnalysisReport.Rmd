@@ -9,15 +9,125 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r, include=FALSE}
+source("MovieLensAnalysisScripts.R", local = knitr::knit_global())
 ```
+
+# 1. Overview
+
+This is the final Report for Movielens Recommendataion system project for Capstone Course from HarvardX Data Science Professional Certificate program prepared by Khaliun Bat-Ochir.
+
+Final Report includes methodology and results of the project including RMSE calculation. Also, this report includes project environment description used for building and running the code.
+
+## 1.1. Project Goal
+
+This is a Machine Learning project. Goal of the project consists in analysing **MovieLens 10M** and training data with chosen Machine Learning algorithm and reaching RMSE below 0.86490.
+
+## 1.2. Project Data
+
+Project uses **MovieLens 10M** data set. The original code from provided by the instruction for Movielens Recommendation system project for Capstone Course downloads original data and as a [*Zip File*](http://files.grouplens.org/datasets/movielens/ml-10m.zip). Code then processes separate two files named **ratings** and **movies** included in the zip file that are joined together by "movieId" field.
+
+## 1.3. Project Files
+
+Project files will be uploaded for review and grading by peers to Edx course section. Uploaded Files Include:
+ 
+* RMarkdown Report File - "MovieLensAnalysisReport.Rmd"
+* R Script File - for convenience, R scripts include
+                + MovieLensAnalysisScripts.R - which contains data preparation scripts
+                + and MovieLensAnalysisScripts_RMSE_edx_dataset.R" that includes codes for model fitting and RMSE calculation for final model, and sources MovieLensAnalysisScripts.R for running.
+* PDF Report - "MovieLensAnalysisReport.pdf"
+
+For convenience purposes, total runing time of each model fitting algorithm had been included in Result section of this report.
+ 
+All the files have been also uploaded to [*MovieLensCodes Github Repository*](https://github.com/khaliunb/MovieLensCodes.git) 
+
+## 1.4. Project Environment
+
+Codes for the project were built and tested using:
+
+* R version 3.6 and
++ RStudio Version 1.3.1073
++ Linux Ubuntu 20.04
+
+# 2. Method
+
+## 2.1. Original Code and Data Set Preparation
+
+Original code divides downloaded data set into following two subsets:
+
+* **edx** - equivalent of **training set** set that contains 80% of the complete MovieLens10K data set
+ + **validation** - equivalent of **test set** that contains 20% of the complete MovieLens10K data set
+
+Furthermore, **edx** data set had been matched with **validation** data set and all recurring data had been removed from **validation** data set.
+
+```{r (edx)}
+summary(edx)
+```
+
+```{r (validation)}
+summary(validation)
+```
+
+Finally, the code removes temporary data sets (dl, ratings, movies, test_index, temp, movielens, removed) that were used to prepare **edx** and **validation** data sets.
+
+Note: Only **edx** data set have been used for data exploration, model fitting and training the data. **validation** data set will be used for final results and RMSE calculation.
+
+## 2.2. Data Exploration and Sampling method
+
+Total length of the **edx** data set is 9'000'055, which is too large for testing an algorithm. Therefore a sample of 10'000 have been used for analysis and tests. Resulting sample dataframe has been named **movielens**.
+
+```{r (movielens)}
+summary(movielens)
+```
+
+**movielens** data set have been further divided into following subsets:
+* **train_set** - 80% of the **movielens** data set
+ + **test_set** - 20% of the **movielens** data set
+for fitting model and training.
+
+Next, **train_set** data set had been matched with **test_set** data set and all recurring data had been removed from **test_set** data set.
+
+```{r (train_set)}
+summary(train_set)
+```
+
+```{r (test_set)}
+summary(test_set)
+```
+
+Linear model analysis used for Machine Learning course will be applied for complete **edx** data set and results will be used for final model. Kmeans cluster analysis was attempted for grouping movies and improving RMSE.
+
+## 2.3. Insights gained
+
+Kmeans clustering have been tried for grouping movies into relevant groups as an attempt to replicate PCA analysis and incorporated the group ids to **edx** data set. However, the final RMSE for movie group model is 0.99 and does not go down for any values of k. Therefore the approach have been dropped. Code performing this analysis have been commented out in file * MovieAnalysisScripts_RMSE_edx_dataset.R *
+
+## 2.4. Model fitting and RMSE approach: Ensemble
+
+Regularized movie and user effect model have be used for final model. To improve RMSE further, random forest and knn algorithms will be tuned for respective parameters. Final model predictions from lm(), randomForest() and knn5() algorithms have been averaged, thus creating ensembles.
+
+Models have been tested out on samples of data and RMSE will be calculated for each version prior to training final model.
+
+# 3. Result
+
+Note: Results section contains plots and summary results present in code file * MovieAnalysisScripts_RMSE_edx_dataset.R.* You can find relevant comments as a description for each result in this file.
+
+## 3.1. Linear model performance
+
+###.3.1.1. lambda value
+
+### 3.1.2. Regularized Movie + User Effect model RMSE
+
+## 3.2. K nearest neighbour model performance
+
+### 3.2.1. k parameter tuning Results
+
+### 3.2.2. K nearest neighbour model  RMSE
+
+## 3.3. Random Forest model performance
+
+### 3.3.1. Parameter tuning Results
+
+### 3.3.2. Random Forest algorithm RMSE
 
 ## Including Plots
 
@@ -27,4 +137,16 @@ You can also embed plots, for example:
 plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## 3.4. Ensemble and Final RMSE
+
+### 3.4.1. Sample ensemble RMSE result
+
+### 3.4.2. Results of training of **edx** set and **validation** set
+
+Training of complete **edx** set was performed. Total time of execution took * 1 hour *.
+
+RMSE calculation using
+
+# 4. Conclusion
+
+For final result, ensemble of Regularized movie and user effect model, random forest and knn results have been used. Final RMSE is below 0.86490.
