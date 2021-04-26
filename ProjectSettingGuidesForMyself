@@ -1,0 +1,321 @@
+---2021.04.05----
+---Setting up the project using Github repository https://github.com/khaliunb/HarvardXCapstoneMovieLens_ProjectRepo.git
+---username: khaliunb; email: khaliun83@yahoo.com
+git config --global user.name "khaliunb"
+git config --global user.mail "khaliun83@yahoo.com"
+---go to main project folder HarvardX/Projects (optional)
+cd Desktop/HarvardX/Projects
+---clone the repository to set up the project
+git clone https://github.com/khaliunb/HarvardXCapstoneMovieLens_ProjectRepo.git
+---go to cloned directory
+cd HarvardXCapstoneMovieLens_ProjectRepo
+---create new project using existing HarvardXCapstoneMovieLens_ProjectRepo directory
+File>New Project> Exising Directory
+---create "data" folder for the project
+---create "MovieLensAnalysisScripts.R" file for the project
+---create "MovieLensAnalysisReport.RMD" file for the project
+---upload the files and folders with comment "Initial Commit for the project by Khaliun.B 2021.04.05 14:25"
+-1. Commit files
+-2. Push files
+---Copy codes from Machine Learning course Chapter: MovieLens into file MovieLensInitialScripts.R and Comment accordingly
+#### Initial Source code is copied from
+#### Machine Learning Course
+#### Course/Section 6: Model Fitting and Recommendation Systems/6.2: Recommendation Systems
+#### Recommendation Systems
+*** Copy code here
+#### Second part of the initial code copied from 
+#### Machine Learning Course
+#### Course/Section 6: Model Fitting and Recommendation Systems/6.2: Recommendation Systems
+#### Building the Recommendation System
+*** Copy code here
+
+############# 2021.04.05 Khaliun.B
+############# Initializing the data through the instructions
+---- Download the data zip file for the project according to Capstone project instructions using link https://grouplens.org/datasets/movielens/10m/ (62.5MB file downloaded)
+For this project, you will be creating a movie recommendation system using the MovieLens dataset. The version of movielens included in the dslabs package (which was used for some of the exercises in PH125.8x: Data Science: Machine Learning) is just a small subset of a much larger dataset with millions of ratings. You can find the entire latest MovieLens dataset here. You will be creating your own recommendation system using all the tools we have shown you throughout the courses in this series. We will use the 10M version of the MovieLens dataset to make the computation a little easier.
+
+You will download the MovieLens data and run code we will provide to generate your datasets.
+
+First, there will be a short quiz on the MovieLens data. You can view this quiz as an opportunity to familiarize yourself with the data in order to prepare for your project submission.
+
+Second, you will train a machine learning algorithm using the inputs in one subset to predict movie ratings in the validation set. Your project itself will be assessed by peer grading.
+--- Also Downloaded the entire movielens data 256MB just in case
+--- Copied ml-10m.zip file into data folder and extracted
+--- Instruction says "Also included are scripts for generating subsets of the data to support five-fold cross-validation of rating predictions."
+--- So move to data folder
+cd Desktop/HarvardX/Projects/HarvardXCapstoneMovieLens_ProjectRepo/data/ml-10m/ml-10M100K/
+--- Execute the script "split_ratings.sh" bash script which uses "allbut.pl" perl script
+./split_ratings.sh
+--- Script, as the instructions say divided the entire data into 5 subsets both training and test sets
+- Explanation in Readme file: The data sets r1.train and r1.test through r5.train and r5.test are 80%/20% splits of the ratings data into training and test data. Each of r1, ..., r5 have disjoint test sets; this if for 5 fold cross validation (where you repeat your experiment with each training and test set and average the results).
+r1.test
+r1.train
+r2.test
+r2.train
+r3.test
+r3.train
+r4.test
+r4.train
+r5.test
+r5.train
+--- Script also create two additional subsets called a and b both training and test sets
+- Explanation in Readme file: The data sets ra.train, ra.test, rb.train, and rb.test split the ratings data into a training set and a test set with exactly 10 ratings per user in the test set. The sets ra.test and rb.test are disjoint.
+ra.test
+ra.train
+rb.test
+rb.train
+----
+#########################################
+
+----- Copied the code from
+# Course/Capstone Project: All Learners/Project Overview: MovieLens
+# Create Train and Final Hold-out Test Sets
+--- Commented the section of the code marked by # if using R 4.0 or later:
+--- as these three lines of code were excess. I am currently using R 3.6 version
+--- Copied and tested the quiz scripts for MovieLens project to validate the data and commented accordingly
+# Course/Capstone Project: All Learners/Quiz: MovieLens Dataset
+--- 
+#######################################
+#######################################
+### Khaliun.B 2021.04.06 There was a git error during second commit the previous day. I think it was because data was messy.
+### I am starting the project again in a more tidy way with another repository. Hope this works
+###
+
+---2021.04.06----
+---Setting up the project using Github repository https://github.com/khaliunb/MovieLensRepo.git
+---username: khaliunb; email: khaliun83@yahoo.com
+git config --global user.name "khaliunb"
+git config --global user.mail "khaliun83@yahoo.com"
+---go to main project folder HarvardX/Projects (optional)
+cd Desktop/HarvardX/Projects
+---clone the repository to set up the project
+git clone https://github.com/khaliunb/MovieLensRepo.git
+---go to cloned directory
+cd MovieLensRepo
+---create new project using existing MovieLensRepo directory
+File>New Project> Exising Directory
+---create "MovieLensAnalysisScripts.R" file for the project
+##### Initial Data Preparation
+----- Copied the code from
+# Course/Capstone Project: All Learners/Project Overview: MovieLens
+# into "MovieLensAnalysisScripts.R" file
+# Create Train and Final Hold-out Test Sets
+--- Commented the section of the code marked by # if using R 4.0 or later:
+###
+--- Run the code. the code downloads and prepares data for the project
+Ctrl+shift+Enter
+---create "MovieLensAnalysisReport.RMD" file for the project
+---upload the files and folders with comment "Initial Commit for the project by Khaliun.B 2021.04.06 14:39"
+-1. Commit files
+-2. Push files
+#########################################
+#########################################
+### Khaliun.B 2021.04.06 14:46 There was a git error again. The error said files exceed 100MB limit 
+### I am starting the project again and following the gitignore file and uploading just the .R and .RMD files initially
+###
+---2021.04.06----
+---Setting up the project using Github repository https://github.com/khaliunb/MovieLensCodes.git
+---in R Terminal, go to main project folder HarvardX/Projects (optional)
+cd Desktop/HarvardX/Projects
+---username: khaliunb; email: khaliun83@yahoo.com
+git config --global user.name "khaliunb"
+git config --global user.mail "khaliun83@yahoo.com"
+---clone the repository to set up the project
+git clone https://github.com/khaliunb/MovieLensCodes.git
+---go to cloned directory
+cd MovieLensCodes
+---create new project using existing MovieLensRepo directory
+File>New Project> Exising Directory
+---create "MovieLensAnalysisScripts.R" file for the project
+##### Initial Data Preparation
+----- Copied the code from
+# Course/Capstone Project: All Learners/Project Overview: MovieLens
+# into "MovieLensAnalysisScripts.R" file
+# Create Train and Final Hold-out Test Sets
+--- Commented the section of the code marked by # if using R 4.0 or later:
+###
+--- Run the code. the code downloads and prepares data for the project
+Ctrl+shift+Enter
+---create RMarkdown file for the project with title "Capstone MovieLens Project Analysis Report" and author "Khaliun Bat-Ochir" and with PDF option and save it as "MovieLensAnalysisReport.RMD" 
+--- The PDF option for the RMarkdown file states: PDF output requires TexLive 2013+ on Linux. We will deal with that later.
+---upload the files and folders with comment "Initial Commit for the project by Khaliun.B 2021.04.06 15:02"
+-1. Commit files MovieLensAnalysisScripts.R, MovieLensAnalysisReport.RMD
+-2. Push files
+--- Successfully uploaded the files to the Github MovieLensCodes repository. This requires several tries and lots of gritty mistakes. I am so happy :)
+### Starting the analysis and code development.
+--- Created file MovieLensAnalysisScripts_DataExploration.R to make it easier to test out the data without having to run the data prep script each time
+
+#########################################
+#########################################
+### Khaliun.B 2021.04.11 13:07###
+### Worked on the Edx test scripts for past hour in file: MovieLensCodes/MovieLensAnalysisScripts_DataExploration.R
+---upload the MovieLensAnalysisScripts_DataExploration.R with comment "Commit the EDX test scripts and answers in file MovieLensAnalysisScripts_DataExploration.R by Khaliun.B 2021.04.11 13:11"
+-1. Commit file MovieLensAnalysisScripts_DataExploration.R
+-2. Push file
+--- Successfully uploaded the file to the Github 
+#Reviewed the project instructions:
+--- Dataset instruction:  You will be creating your own recommendation system using all the tools we have shown you throughout the courses in this series. We will use the 10M version of the MovieLens dataset to make the computation a little easier.
+--- Step1: You will download the MovieLens data and run code we will provide to generate your datasets.
+--- Step1 completed with file MovieLensAnalysisScripts.R
+--- Step2: First, there will be a short quiz on the MovieLens data. You can view this quiz as an opportunity to familiarize yourself with the data in order to prepare for your project submission.
+--- Step2 completed with file MovieLensAnalysisScripts_DataExploration.R
+--- Step3: Second, you will train a machine learning algorithm using the inputs in one subset to predict movie ratings in the validation set. Your project itself will be assessed by peer grading.
+# Working on the Step3 2021.04.11 13:20 by Khaliun.B
+--- Instructions for Step3:
+(!) Develop your algorithm using the edx set.
+(!) For a final test of your final algorithm, predict movie ratings in the validation set (the final hold-out test set) as if they were unknown.
+(!) RMSE will be used to evaluate how close your predictions are to the true values in the validation set (the final hold-out test set).
+(!) Important: The validation data (the final hold-out test set) should NOT be used for training, developing, or selecting your algorithm and it should ONLY be used for evaluating the RMSE of your final algorithm. he final hold-out test set should only be used at the end of your project with your final model. It may not be used to test the RMSE of multiple models during model development. You should split the edx data into separate training and test sets to design and test your algorithm.
+---create "MovieLensAnalysisScripts_RMSE_edx_dataset.R" file for the project
+#########################################
+#########################################
+### Khaliun.B 2021.04.12 20:31###
+### Worked on the Edx test scripts for the day
+----Tested and Commented whole script in MovieLensAnalysisScript_RMSE_edx_dataset.R file
+---- Added comments to MovieLensAnalysisScripts.R file
+---- Added comments to MovieLensAnalysisScripts_Data_Exploration.R file
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the initial RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R tested and commented for further development, and also changes in MovieLensAnalysisScripts_DataExploration.R, MovieLensAnalysisScript.R script files by Khaliun.B 2021.04.12 20:37"
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisScripts_DataExploration.R, MovieLensAnalysisScript.R files
+-2. Push file
+--- Successfully uploaded the file to the Github
+#########################################
+### Khaliun.B 2021.04.13 16:04###
+### Working on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+----Copied codes from Machine Learning course Course/Section 6: Model Fitting and Recommendation Systems/6.3: Regularization
+----Removed part of the script that repeats previous code
+----Tested and Commented whole added script in MovieLensAnalysisScript_RMSE_edx_dataset.R file
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R tested and commented for further development by Khaliun.B 2021.04.13 23:54"
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R files
+-2. Push file
+--- Successfully uploaded the file to the Github
+#########################################
+### Khaliun.B 2021.04.14 18:26###
+### Worked on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+----Copied two parts of codes from Machine Learning course Course/Section 6: Model Fitting and Recommendation Systems/6.3: Regularization
+Topics Matrix Factorization, SVD and PCA 
+----Tested and Commented whole added script in MovieLensAnalysisScript_RMSE_edx_dataset.R file
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R tested and commented for further development by Khaliun.B 2021.04.14 18:28"
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R files
+-2. Push file
+--- Successfully uploaded the file to the Github
+#########################################
+### Khaliun.B 2021.04.15 17:10###
+### Working on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+### to figure out how to use PCA and incorporate the results in the model
+--- Reading Textbook's chapter on 33.11 Matrix factorization and 33.11.2 Connection to SVD and PCA
+It seems that these scripts are creating a matrix of p and q dimensions
+We are noting following from the book:
+1. Also not that this is not a linear model and to fit it, we need to use an algorithm other than used by lm to find the parameters
+that MINIMIZE the least squares. The winning algorithm for the Netflix challenge fit a model similar to the above and used REGULARIZATION
+to penalize for large values of p and q rather than using least squares
+--- Scratch the previous. My approach is more likely to fit Chapter 34 Clustering
+--- Reading Chapter 34 Clustering. I really think that with systematic approach, I can incorporate this method into movielens 10k data
+--- 1. Perform Hierarchical Clustering algorithm on the data using hclust
+--- 1.1. h <- hclust(d)
+--- 1.2. groups <- cutree(h, k = 10)
+--- 1.3. Optimize value of k where overall RMSE is the lowest like we used to determine lambda value
+--- 2. Identify groupId for each movieId and add the groupId to the movilens10k table (or edx)
+--- 3. Determine mu's for each group
+--- 4. Incorporate the mu's into the model
+--- 5. Calculate RMSE. It should go down
+######
+--- Copied code from Textbook Chapter 34 Clustering, 34.1 Hierarchical clustering and 34.2 k-means
+--- Testing out each code and will see how to address the resulting groups and how to incorporate the groups into the original data
+----Tested and Commented whole added script in MovieLensAnalysisScript_RMSE_edx_dataset.R file
+----Decided to include Kmeans Hierarchical Cluster groups for Movie to improve RMSE
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R tested and commented for further development. Note for self: Decided to include Kmeans Hierarchical Cluster groups for Movie to improve RMSE. Commited by Khaliun.B 2021.04.15 21:39."
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R file
+-2. Push file
+--- Successfully uploaded the file to the Github
+#########################################
+### Khaliun.B 2021.04.16 21:39###
+### Worked on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+### on joining the clustered groups data into original dataset
+--- Solution was found in following code:
+x_mur0 <- movielens %>% 
+  filter(movieId %in% mur_movieIds) %>%
+  group_by(userId) %>%
+  filter(n() >= 25) %>%
+  ungroup() %>%
+  filter(!is.na(rating))%>%
+  select(movieId, userId, rating)
+
+k_test<-x_mur0%>%group_by(movieId)%>%do(data.frame(., kclust = kmeans(cbind(.$userId,.$rating),centers=10,nstart=25)$cluster))
+summary(k_test)
+--- Idea was to perform kmeans on the actual data frame instead of creating separate matrix
+--- However, we need to see the groups' contents to see if we had achieved the same result as separate matrix. Will do that tomorrow
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R with code additions for Hierarchical Cluster groups for Movie to improve RMSE. Code development in progress. Commited by Khaliun.B 2021.04.16 21:44."
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R file
+-2. Push file
+--- Successfully uploaded the file to the Github
+#########################################
+### Khaliun.B 2021.04.17 15:08###
+### Working on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+### furthering kmeans clustering code
+#### (!) Compare the clustering plot for kmeans both for the matrix and dataframe approach
+#### If clusterings are similar, will continue with the model
+---First, we will use create on-dataset kmeans groups for the same data structure we used for matrix approach
+---Then, we will create plots to compare the clustering images for both matrix and dataframe. Remember, we are using groups_mur <- k_mur$cluster data for comparison
+---If results are the same, we will integrate the dataframe into original data and test out RMSE for the final model
+#########################################
+### Khaliun.B 2021.04.18 14:26###
+### Working on MovieLensAnalysisScript_RMSE_edx_dataset.R file
+### Figuring out how to convert factor to dataset my own way
+---Successfully mutated kmeans converted to factor into the dataset as separate columns movieId and kgroup with following chunk of code
+	k_mur1<-kmeans(x_mur,centers=10,nstart=25)
+	k_mur1<-factor(k_mur1$cluster)
+	class(k_mur1)
+	names(k_mur1)
+	
+	summary(k_mur1)
+	length(names(k_mur1))
+	
+	temp1<-data.frame(movieId=as.integer(names(k_mur1)))
+	#Checking if the length of movieId is the same as the factor names()
+	length(temp1$movieId)
+	
+	#Mutate group numbers back to the dataset
+	temp1<-temp1%>%mutate(kgroup=as.integer(k_mur1[names(k_mur1)==.$movieId]))
+	head(temp1)
+	
+	#Checking if the groups had been assigned the right way
+	temp1%>%filter(kgroup==8)
+	names(k_mur1)[k_mur1==8]
+	
+	#Mutate groups back to original data
+	x_mur_g <- x_mur1 %>% 
+	  left_join(temp1, by='movieId')
+	
+	#Checking the resulting data frame
+	summary(x_mur_g)
+###Continuing on to developing the final model. Prior to that, comitting the current code
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R with code additions for mutating kmeans groups to original data. Commited by Khaliun.B 2021.04.18 14:56."
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R file
+-2. Push file
+--- Successfully uploaded the file to the Github
+--- Removing excess codes from file MovieLensAnalysisScript_RMSE_edx_dataset.R 14:59
+--- The RMSE did not go down. We will try model fitting tomorrow
+---upload the MovieLensAnalysisScript_RMSE_edx_dataset.R file with comment "Commit the edited RMSE calculations script file MovieLensAnalysisScript_RMSE_edx_dataset.R with code alterations for final model. Commited by Khaliun.B 2021.04.18 21:06."
+-1. Commit file MovieLensAnalysisScript_RMSE_edx_dataset.R file
+-2. Push file
+### 
+#########################################
+### Khaliun.B 2021.04.26 14:32###
+### Working on MovieLensAnalysisReport.RMD file
+--- Sucessfully installed Tex Live on Ubuntu.
+sudo apt-get install texlive
+sudo apt-get install texlive-latex-extra
+--- PDF knit for file MovieLensAnalysisReport.RMD works and creates MovieLensAnalysisReport.pdf file.
+(!) Remember not to upload the pdf until the final version of the report is ready. Otherwise git push might create error. We don't want that
+--- Successfully uploaded the file to the Github
+---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files with comment "Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files. Commited by Khaliun.B 2021.04.26 14:37."
+-1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
+-2. Push files
+--- Successfully finished the Linear model analysis for the Regularized User Effect + Movie Effect model for complete edx data set in files MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisScript.R
+--- Added sample data set preparation script in file MovieLensAnalysisScript.R
+--- Successfully included the analysis results in report file MovieLensAnalysisReport.RMD
+--- Copied ProjectSettingGuidesForMyself.txt file into the project folder for further reference in case computer data is lost
+---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD, ProjectSettingGuidesForMyself.txt files with comment "Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD, ProjectSettingGuidesForMyself.txt files. Commited by Khaliun.B 2021.04.26 23:25."
+-1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD, ProjectSettingGuidesForMyself.txt files
+-2. Push files
+

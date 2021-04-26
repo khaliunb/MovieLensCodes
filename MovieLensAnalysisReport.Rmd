@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, include=FALSE}
+```{r dataprep-file-source, include=FALSE}
 source("MovieLensAnalysisScripts.R", local = knitr::knit_global())
 ```
 
@@ -74,36 +74,92 @@ Note: Only **edx** data set have been used for data exploration, model fitting a
 
 ## 2.2. Data Exploration and Sampling method
 
-Total length of the **edx** data set is 9'000'055, which is too large for testing an algorithm. Therefore a sample of 10'000 have been used for analysis and tests. Resulting sample dataframe has been named **movielens**.
+### 2.2.1. Linear model analysis data
 
-```{r (movielens)}
-summary(movielens)
+Linear model analysis used for Machine Learning course will be applied for complete **edx** data set and results will be used for final model.
+
+Regularized movie and user effect model have also been attempted on sample of 10'000. However, the results were inconclusive as the sample data did not represent the completed **edx** data set. Therefore final *lambda* value for the model and analysis for the linear model have been carried out using complete **edx** data set. Also **training_set** and **test_set** partitioned from complete **edx** data set had been used. 
+
+### 2.2.2. Random forest analysis data
+
+Total length of the **edx** data set is 9'000'055, which is too large for testing a random forest algorithm. Therefore a separate samples of 10'000, 30'000 and 50'000 have been used for analysis and tests. Resulting sample data frames has been named **movielens10K**, **movielens30K** and **movielens50K** respectively.
+
+#### 2.2.2.1 movielens10k data set
+
+Following is the summary of sample prepared for analysis named **movielens10K**
+
+```{r (movielens10K)}
+summary(movielens10K)
 ```
 
-**movielens** data set have been further divided into following subsets:
-* **train_set** - 80% of the **movielens** data set
- + **test_set** - 20% of the **movielens** data set
+**movielens10K** data set have been further divided into following subsets:
+* **train_set10K** - 80% of the **movielens10K** data set
+ + **train_set10K** - 20% of the **movielens10K** data set
 for fitting model and training.
 
-Next, **train_set** data set had been matched with **test_set** data set and all recurring data had been removed from **test_set** data set.
+Next, **train_set10K** data set had been matched with **test_set10K** data set and all recurring data had been removed from **test_set10K** data set.
 
-```{r (train_set)}
-summary(train_set)
+```{r (train_set10K)}
+summary(train_set10K)
 ```
 
-```{r (test_set)}
-summary(test_set)
+```{r (test_set10K)}
+summary(test_set10K)
 ```
 
-Linear model analysis used for Machine Learning course will be applied for complete **edx** data set and results will be used for final model. Kmeans cluster analysis was attempted for grouping movies and improving RMSE.
+#### 2.2.2.2 movielens30k data set
 
-## 2.3. Insights gained
+Following is the summary of sample prepared for analysis named **movielens30K**
+
+```{r (movielens30K)}
+summary(movielens30K)
+```
+
+**movielens30K** data set have been further divided into following subsets:
+* **train_set30K** - 80% of the **movielens30K** data set
+ + **train_set30K** - 20% of the **movielens30K** data set
+for fitting model and training.
+
+Next, **train_set30K** data set had been matched with **test_set30K** data set and all recurring data had been removed from **test_set30K** data set.
+
+```{r (train_set30K)}
+summary(train_set30K)
+```
+
+```{r (test_set30K)}
+summary(test_set30K)
+```
+
+#### 2.2.2.3 movielens50k data set
+
+Following is the summary of sample prepared for analysis named **movielens50K**
+
+```{r (movielens50K)}
+summary(movielens50K)
+```
+
+**movielens50K** data set have been further divided into following subsets:
+* **train_set50K** - 80% of the **movielens50K** data set
+ + **train_set50K** - 20% of the **movielens50K** data set
+for fitting model and training.
+
+Next, **train_set50K** data set had been matched with **test_set50K** data set and all recurring data had been removed from **test_set50K** data set.
+
+```{r (train_set50K)}
+summary(train_set50K)
+```
+
+```{r (test_set50K)}
+summary(test_set50K)
+```
+
+## 2.3. Failures and Insights gained
 
 Kmeans clustering have been tried for grouping movies into relevant groups as an attempt to replicate PCA analysis and incorporated the group ids to **edx** data set. However, the final RMSE for movie group model is 0.99 and does not go down for any values of k. Therefore the approach have been dropped. Code performing this analysis have been commented out in file * MovieAnalysisScripts_RMSE_edx_dataset.R *
 
 ## 2.4. Model fitting and RMSE approach: Ensemble
 
-Regularized movie and user effect model have be used for final model. To improve RMSE further, random forest and knn algorithms will be tuned for respective parameters. Final model predictions from lm(), randomForest() and knn5() algorithms have been averaged, thus creating ensembles.
+Regularized movie and user effect model have be used for final model. To improve RMSE further, random forest and knn algorithms will be tuned for respective parameters. Final model predictions from lm(), randomForest() algorithms have been averaged, thus creating an ensemble.
 
 Models have been tested out on samples of data and RMSE will be calculated for each version prior to training final model.
 
@@ -113,29 +169,141 @@ Note: Results section contains plots and summary results present in code file * 
 
 ## 3.1. Linear model performance
 
-###.3.1.1. lambda value
+We are showing distinct userId and distinct movieIds in movielens data to get the idea.
+
+```{r edx-user-movies-number}
+edx %>%
+  summarize(n_users = n_distinct(userId),
+            n_movies = n_distinct(movieId))
+```
+
+```{r keep-prep-script, include=FALSE}
+keep <- edx %>%
+  dplyr::count(movieId) %>%
+  top_n(5) %>%
+  pull(movieId)
+```
+
+Now, let us list top 5 most rated movies in movielens data
+```{r (keep)}
+keep
+```
+
+```{r tab-prep-script, include=FALSE}
+keep_raters<-edx %>% filter(movieId %in% keep) %>%
+    mutate(rating=1) %>%
+    select(movieId,userId,rating) %>%
+    group_by(userId) %>%
+    summarize(n=sum(rating)) %>%
+    head()%>%
+    pull(userId)
+
+tab <- edx %>%
+  filter(userId %in% keep_raters) %>% 
+  filter(movieId %in% keep) %>%
+  arrange(userId) %>%
+  select(userId, title, rating) %>% 
+  spread(title, rating)
+```
+
+Following code shows top 5 most rated movies' ratings in movielens data and transposes the title and rating columns by value and lists the results for userId column.
+        
+```{r (tab)}
+tab %>% knitr::kable()
+```
+
+```{r ratings-spread-plot, echo=FALSE}
+users <- sample(unique(edx$userId), 100)
+
+rafalib::mypar()
+edx %>% filter(userId %in% users) %>% 
+  select(userId, movieId, rating) %>%
+  mutate(rating = 1) %>%
+  spread(movieId, rating) %>% select(sample(ncol(.), 100)) %>% 
+  as.matrix() %>% t(.) %>%
+  image(1:100, 1:100,. , xlab="Movies", ylab="Users") 
+
+abline(h=0:100+0.5, v=0:100+0.5, col = "grey")
+```
+
+Plot counts number of times each movieId is rated and creates geom_histogram which scales the number of movies by log10
+
+```{r movies-plot, echo=FALSE}
+edx %>% 
+  dplyr::count(movieId) %>% 
+  ggplot(aes(n)) + 
+  geom_histogram(bins = 30, color = "black") + 
+  scale_x_log10() + 
+  ggtitle("Movies")
+```
+
+Plot counts number of times each userId is rated and creates geom_histogram which scales the number of users who had given ratings by log10
+
+```{r users-plot, echo=FALSE}
+edx %>%
+  dplyr::count(userId) %>% 
+  ggplot(aes(n)) + 
+  geom_histogram(bins = 30, color = "black") + 
+  scale_x_log10() +
+  ggtitle("Users")
+```  
+
+### 3.1.1. lambda value
+
+```{r linear-model-rmse, include=FALSE}
+lambdas <- seq(0, 10, 0.25)
+RMSE <- function(true_ratings, predicted_ratings){
+  sqrt(mean((true_ratings - predicted_ratings)^2))
+}
+mu <- mean(train_set$rating)
+rmses <- sapply(lambdas, function(l){
+  b_i <- train_set %>%
+    group_by(movieId) %>%
+    summarize(b_i = sum(rating - mu)/(n()+l))
+  b_u <- train_set %>% 
+    left_join(b_i, by="movieId") %>%
+    group_by(userId) %>%
+    summarize(b_u = sum(rating - b_i - mu)/(n()+l))
+  predicted_ratings <- 
+    test_set %>% 
+    left_join(b_i, by = "movieId") %>%
+    left_join(b_u, by = "userId") %>%
+    mutate(pred = mu + b_i + b_u) %>%
+    .$pred
+  return(RMSE(predicted_ratings, test_set$rating))
+})
+
+lambda <- lambdas[which.min(rmses)]
+rmse_results <-data_frame(method="Regularized Movie + User Effect Model",
+                                     RMSE = min(rmses))
+```
+
+```{r lambda-qplot, echo=FALSE}
+qplot(lambdas, rmses)
+```
+
+Analysis results for the Regularized Movie + User Effect model shows that the optimal value of lambda is as follows:
+
+```{r lambda-optimal-value, echo=FALSE}
+lambda
+```
+This value we will incorporate in the actual training of the linear model.
 
 ### 3.1.2. Regularized Movie + User Effect model RMSE
 
-## 3.2. K nearest neighbour model performance
+Final minimum RMSE for Regularized Movie + User Effect is as follows:
 
-### 3.2.1. k parameter tuning Results
-
-### 3.2.2. K nearest neighbour model  RMSE
+```{r, echo=FALSE}
+rmse_results %>% knitr::kable()
+```
 
 ## 3.3. Random Forest model performance
 
-### 3.3.1. Parameter tuning Results
+### 3.3.1. Parameter tuning Results using sampling
 
-### 3.3.2. Random Forest algorithm RMSE
+### 3.3.2. Growing the tree
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+### 3.3.3. Random Forest algorithm RMSE on the actual dataset
 
 ## 3.4. Ensemble and Final RMSE
 
@@ -145,8 +313,6 @@ plot(pressure)
 
 Training of complete **edx** set was performed. Total time of execution took * 1 hour *.
 
-RMSE calculation using
-
 # 4. Conclusion
 
-For final result, ensemble of Regularized movie and user effect model, random forest and knn results have been used. Final RMSE is below 0.86490.
+For final result, ensemble of Regularized movie and user effect model, random forest results have been used. Final RMSE is below 0.86490.

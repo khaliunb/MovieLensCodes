@@ -70,17 +70,13 @@ edx <- rbind(edx, removed)
 # This part of the code removes variables used for "edx" and "validation" data sets  other than "edx" and "validation": Commented by Khaliun.B 2021.04.11
 rm(dl, ratings, movies, test_index, temp, movielens, removed)
 
-#This part of the code picks 10'000 random samples from edx data set and assigns them to movielens data set for analysis and test purposes: Commented by Khaliun.B 2021.04.24
-movielens <- sample_n(edx,10000)
-summary(movielens)
-
-#This part of the code divides movielens data used for Machine Learning course demonstration into
+#This part of the code divides movielens data into
 # 80%:20% training set named "train_set" and test set named "train_set": Commented by Khaliun.B 2021.04.12
 set.seed(755)
-test_index <- createDataPartition(y = movielens$rating, times = 1,
+test_index <- createDataPartition(y = edx$rating, times = 1,
                                   p = 0.2, list = FALSE)
-train_set <- movielens[-test_index,]
-test_set <- movielens[test_index,]
+train_set <- edx[-test_index,]
+test_set <- edx[test_index,]
 #Code results for length(test_index); total length of test_index: [1] 20002
 #Code results for dim(train_set); training set has 80'002 rows and 7 columns: [1] 80002     7
 #Code results for dim(test_set); test set has 20'002 rows and 7 columns: [1] 20002     7
@@ -92,3 +88,48 @@ test_set <- test_set %>%
   semi_join(train_set, by = "userId")
 #Code results for dim(test_set) after semi_joins with train_set: [1] 19331     7
 #This process as excluded 671 rows that were present in training set from test set
+
+######################################################
+### Sampling and data preparation for random forest model test
+######################################################
+
+#This part of the code picks 10'000 random samples from edx data set and assigns them to movielens10K data set for analysis and test purposes of random forest model: Commented by Khaliun.B 2021.04.26
+movielens10K <- sample_n(edx,10000)
+
+# 80%:20% training set named "train_set10K" and test set named "train_set10K": Commented by Khaliun.B 2021.04.26
+test_index10K <- createDataPartition(y = edx$rating, times = 1,
+                                  p = 0.2, list = FALSE)
+train_set10K <- edx[-test_index,]
+test_set10K <- edx[test_index,]
+
+test_set10K <- test_set10K %>% 
+  semi_join(train_set10K, by = "movieId") %>%
+  semi_join(train_set10K, by = "userId")
+
+################################################
+#This part of the code picks 30'000 random samples from edx data set and assigns them to movielens30K data set for analysis and test purposes of random forest model: Commented by Khaliun.B 2021.04.26
+movielens30K <- sample_n(edx,30000)
+
+# 80%:20% training set named "train_set30K" and test set named "train_set30K": Commented by Khaliun.B 2021.04.26
+test_index30K <- createDataPartition(y = edx$rating, times = 1,
+                                     p = 0.2, list = FALSE)
+train_set30K <- edx[-test_index,]
+test_set30K <- edx[test_index,]
+
+test_set30K <- test_set30K %>% 
+  semi_join(train_set30K, by = "movieId") %>%
+  semi_join(train_set30K, by = "userId")
+
+################################################
+#This part of the code picks 50'000 random samples from edx data set and assigns them to movielens50K data set for analysis and test purposes of random forest model: Commented by Khaliun.B 2021.04.26
+movielens50K <- sample_n(edx,50000)
+
+# 80%:20% training set named "train_set50K" and test set named "train_set50K": Commented by Khaliun.B 2021.04.26
+test_index50K <- createDataPartition(y = edx$rating, times = 1,
+                                     p = 0.2, list = FALSE)
+train_set50K <- edx[-test_index,]
+test_set50K <- edx[test_index,]
+
+test_set50K <- test_set50K %>% 
+  semi_join(train_set50K, by = "movieId") %>%
+  semi_join(train_set50K, by = "userId")
