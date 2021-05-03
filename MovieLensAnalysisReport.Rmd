@@ -34,7 +34,8 @@ Project files will be uploaded for review and grading by peers to Edx course sec
 * RMarkdown Report File - "MovieLensAnalysisReport.Rmd"
 * R Script File - for convenience, R scripts include
                 + MovieLensAnalysisScripts.R - which contains data preparation scripts
-                + and MovieLensAnalysisScripts_RMSE_edx_dataset.R" that includes codes for model fitting and RMSE calculation for final model, and sources MovieLensAnalysisScripts.R for running.
+                + MovieLensAnalysisScripts_DataExploration.R - which contains analysis codes related to this report. (Please note that this file sources MovieLensAnalysisScripts.R for running).
+                + and MovieLensAnalysisScripts_RMSE_edx_dataset.R" that includes codes for model fitting and RMSE calculation for final model. (Please note that this file sources MovieLensAnalysisScripts.R for running).
 * PDF Report - "MovieLensAnalysisReport.pdf"
 
 For convenience purposes, total runing time of each model fitting algorithm had been included in Result section of this report.
@@ -80,96 +81,21 @@ Linear model analysis used for Machine Learning course will be applied for compl
 
 Regularized movie and user effect model have also been attempted on sample of 10'000. However, the results were inconclusive as the sample data did not represent the completed **edx** data set. Therefore final *lambda* value for the model and analysis for the linear model have been carried out using complete **edx** data set. Also **training_set** and **test_set** partitioned from complete **edx** data set had been used. 
 
-### 2.2.2. Random forest analysis data
-
-Total length of the **edx** data set is 9'000'055, which is too large for testing a random forest algorithm. Therefore a separate samples of 10'000, 30'000 and 50'000 have been used for analysis and tests. Resulting sample data frames has been named **movielens10K**, **movielens30K** and **movielens50K** respectively.
-
-#### 2.2.2.1 movielens10k data set
-
-Following is the summary of sample prepared for analysis named **movielens10K**
-
-```{r (movielens10K)}
-summary(movielens10K)
-```
-
-**movielens10K** data set have been further divided into following subsets:
-* **train_set10K** - 80% of the **movielens10K** data set
- + **train_set10K** - 20% of the **movielens10K** data set
-for fitting model and training.
-
-Next, **train_set10K** data set had been matched with **test_set10K** data set and all recurring data had been removed from **test_set10K** data set.
-
-```{r (train_set10K)}
-summary(train_set10K)
-```
-
-```{r (test_set10K)}
-summary(test_set10K)
-```
-
-#### 2.2.2.2 movielens30k data set
-
-Following is the summary of sample prepared for analysis named **movielens30K**
-
-```{r (movielens30K)}
-summary(movielens30K)
-```
-
-**movielens30K** data set have been further divided into following subsets:
-* **train_set30K** - 80% of the **movielens30K** data set
- + **train_set30K** - 20% of the **movielens30K** data set
-for fitting model and training.
-
-Next, **train_set30K** data set had been matched with **test_set30K** data set and all recurring data had been removed from **test_set30K** data set.
-
-```{r (train_set30K)}
-summary(train_set30K)
-```
-
-```{r (test_set30K)}
-summary(test_set30K)
-```
-
-#### 2.2.2.3 movielens50k data set
-
-Following is the summary of sample prepared for analysis named **movielens50K**
-
-```{r (movielens50K)}
-summary(movielens50K)
-```
-
-**movielens50K** data set have been further divided into following subsets:
-* **train_set50K** - 80% of the **movielens50K** data set
- + **train_set50K** - 20% of the **movielens50K** data set
-for fitting model and training.
-
-Next, **train_set50K** data set had been matched with **test_set50K** data set and all recurring data had been removed from **test_set50K** data set.
-
-```{r (train_set50K)}
-summary(train_set50K)
-```
-
-```{r (test_set50K)}
-summary(test_set50K)
-```
-
 ## 2.3. Failures and Insights gained
 
-Kmeans clustering have been tried for grouping movies into relevant groups as an attempt to replicate PCA analysis and incorporated the group ids to **edx** data set. However, the final RMSE for movie group model is 0.99 and does not go down for any values of k. Therefore the approach have been dropped. Code performing this analysis have been commented out in file * MovieAnalysisScripts_RMSE_edx_dataset.R *
+Kmeans clustering have been tried for grouping movies into relevant groups as an attempt to replicate PCA analysis and incorporated the group ids to **edx** data set. However, the final RMSE for movie group model is 0.99 and does not go down for any values of k. Therefore the approach have been dropped. Code performing this analysis have been commented out in file * MovieAnalysisScripts_DataExploration.R *
 
-## 2.4. Model fitting and RMSE approach: Ensemble
+## 2.4. Model fitting and RMSE approach
 
-Regularized movie and user effect model have be used for final model. To improve RMSE further, random forest and knn algorithms will be tuned for respective parameters. Final model predictions from lm(), randomForest() algorithms have been averaged, thus creating an ensemble.
+Regularized movie and user effect model have be used for final model. We will be using full cross-validation just on the **train_set**, without using the **test_set** until the final assessment as the test set should never be used for tuning.
 
-Models have been tested out on samples of data and RMSE will be calculated for each version prior to training final model.
+**test_set** set will be used for RMSE calculation for *lambda* parameter tuning. From there, minimum value of RMSE achieving *lambda* will be used for final model training on **edx** data set and Final RMSE **validation** set will be used.
 
 # 3. Result
 
-Note: Results section contains plots and summary results present in code file * MovieAnalysisScripts_RMSE_edx_dataset.R.* You can find relevant comments as a description for each result in this file.
+Note: Results section contains plots and summary results present in code file *MovieAnalysisScripts_DataExploration.R* You can find relevant comments as a description for each result in this file.
 
 ## 3.1. Linear model performance
-
-We are showing distinct userId and distinct movieIds in movielens data to get the idea.
 
 ```{r edx-user-movies-number}
 edx %>%
@@ -206,7 +132,7 @@ tab <- edx %>%
   spread(title, rating)
 ```
 
-Following code shows top 5 most rated movies' ratings in movielens data and transposes the title and rating columns by value and lists the results for userId column.
+Top 5 most rated movies' ratings in movielens data and transposes the title and rating columns by value and lists the results for userId column.
         
 ```{r (tab)}
 tab %>% knitr::kable()
@@ -215,7 +141,7 @@ tab %>% knitr::kable()
 ```{r ratings-spread-plot, echo=FALSE}
 users <- sample(unique(edx$userId), 100)
 
-rafalib::mypar()
+#rafalib::mypar()
 edx %>% filter(userId %in% users) %>% 
   select(userId, movieId, rating) %>%
   mutate(rating = 1) %>%
@@ -249,6 +175,8 @@ edx %>%
 ```  
 
 ### 3.1.1. lambda value
+
+We will remember that λ is a tuning parameter. Therefore we will use cross-validation to choose it and apply the final minimum RMSE value of λ for final training.
 
 ```{r linear-model-rmse, include=FALSE}
 lambdas <- seq(0, 10, 0.25)
@@ -297,19 +225,11 @@ Final minimum RMSE for Regularized Movie + User Effect is as follows:
 rmse_results %>% knitr::kable()
 ```
 
-## 3.3. Random Forest model performance
+### 3.4. Results of training of **edx** set and **validation** set
 
-### 3.3.1. Parameter tuning Results using sampling
+### 3.4.1. 
 
-### 3.3.2. Growing the tree
-
-### 3.3.3. Random Forest algorithm RMSE on the actual dataset
-
-## 3.4. Ensemble and Final RMSE
-
-### 3.4.1. Sample ensemble RMSE result
-
-### 3.4.2. Results of training of **edx** set and **validation** set
+Now, we are using the *lambda* value gained using cross validation. We are preparing the values for linear model and fitting the model. Final RMSE is 
 
 Training of complete **edx** set was performed. Total time of execution took * 1 hour *.
 
