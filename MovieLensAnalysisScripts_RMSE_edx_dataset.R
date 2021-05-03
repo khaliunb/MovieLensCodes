@@ -22,25 +22,10 @@ source("MovieLensAnalysisScripts.R", local = knitr::knit_global())
 #This part of the code calculates mean of the train_set$rating column
 #and stores the result in variable named "mu": Commented by Khaliun.B 2021.04.26
 
-x<-train_set$pred
-y<-train_set$rating
-
-nrow(train_set)
-
-x_test<-test_set$pred
-y_test<-test_set$rating
-
-summary(test_set)
-
-fit_lm <-  lm(y ~ x)
-
-y_hat_lm <- predict(fit_lm, as.factor(y_test))
-levels(as.factor(y_hat_lm))
-levels(y_test)
-cm <- confusionMatrix(y_hat_lm, y_test)
-cm$overall["Accuracy"]
-
-#RMSE(fit, test_set$rating)
+fit_lm <-  lm(rating ~ pred,data=edx)
+y_hat_lm <- predict(fit_lm, newdata=validation)
+RMSE(validation$rating, y_hat_lm)
+#Final RMSE value: [1] 0.8648617
 ###########################################################################
 ### END: This chunk of code is training Linear model with Regularized Movie Effect + User Effect model 
 ###########################################################################

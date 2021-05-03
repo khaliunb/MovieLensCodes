@@ -325,3 +325,11 @@ sudo apt-get install texlive-latex-extra
 ---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisScript_DataExploration.R, MovieLensAnalysisReport.RMD files with comment "Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisScript_DataExploration.R, MovieLensAnalysisReport.RMD files. Commited by Khaliun.B 2021.05.03 15:57."
 -1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisScript_DataExploration.R, MovieLensAnalysisReport.RMD files
 -2. Push files
+#####################################
+### Khaliun.B 2021.05.03 20:41###
+### Finally, we have achived RMSE [1] 0.8648617
+#####################################
+--- Successfully uploaded the file to the Github
+---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files with comment "Commit the final RMSE calculation scripts with MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files. Commited by Khaliun.B 2021.05.03 20:43."
+-1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files
+-2. Push files

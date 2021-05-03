@@ -82,7 +82,7 @@ rm(dl, ratings, movies, test_index, temp, movielens, removed)
 
 ###################################################################
 ### BEGIN: This group of code prepares edx data set for training of lm()
-### The code has been added by Khaliun.B 2021.05.03
+### The comment has been added by Khaliun.B 2021.05.03
 ###################################################################
 
 #This part of the code assigns lamdba value. lambda value has been previously tuned by analysis: Commented by Khaliun.B 2021.05.03
@@ -106,9 +106,16 @@ edx <- edx %>%
   left_join(b_u, by = "userId") %>%
   mutate(pred = mu + b_i + b_u)
 
+#This part of the code mutates bi, bu, pred features into the original validation data set for use of evaluating lm() model results: Commented by Khaliun.B 2021.05.03 
+
+validation <- validation %>% 
+  left_join(b_i, by = "movieId") %>%
+  left_join(b_u, by = "userId") %>%
+  mutate(pred = mu + b_i + b_u)
+
 ###################################################################
 ### END: This group of code prepares edx data set for training of lm()
-### The code has been added by Khaliun.B 2021.05.03
+### The comment has been added by Khaliun.B 2021.05.03
 ###################################################################
 
 #This part of the code creates function for calculating Residual Mean Squared Error: Commented by Khaliun.B 2021.04.26
@@ -116,23 +123,35 @@ RMSE <- function(true_ratings, predicted_ratings){
   sqrt(mean((true_ratings - predicted_ratings)^2))
 }
 
+###################################################################
+### BEGIN: This group of code prepares subsets of edx data set for analysis and testing of lm() execution results
+### The comment has been added by Khaliun.B 2021.05.03
+### (!) We don't need this group of code to run for the final RMSE
+### Therefore all the code had been commented out with triple hashtag ###
+###################################################################
+
 #This part of the code divides movielens data into
 # 80%:20% training set named "train_set" and test set named "train_set": Commented by Khaliun.B 2021.04.12
-set.seed(755)
-sample_edx<-sample_n(edx,1000)
+###set.seed(755)
+#sample_edx<-sample_n(edx,100000)
 
-test_index <- createDataPartition(y = sample_edx$rating, times = 1,
-                                  p = 0.2, list = FALSE)
-train_set <- sample_edx[-test_index,]
-test_set <- sample_edx[test_index,]
+###test_index <- createDataPartition(y = sample_edx$rating, times = 1,
+###                                  p = 0.2, list = FALSE)
+###train_set <- sample_edx[-test_index,]
+###test_set <- sample_edx[test_index,]
 #Code results for length(test_index); total length of test_index: [1] 20002
 #Code results for dim(train_set); training set has 80'002 rows and 7 columns: [1] 80002     7
 #Code results for dim(test_set); test set has 20'002 rows and 7 columns: [1] 20002     7
 
 #This part of the code does the semi-joins test_set with training set first using movieId
 #and second using userId: Commented by Khaliun.B 2021.04.12
-test_set <- test_set %>% 
-  semi_join(train_set, by = "movieId") %>%
-  semi_join(train_set, by = "userId")
+###test_set <- test_set %>% 
+###  semi_join(train_set, by = "movieId") %>%
+###  semi_join(train_set, by = "userId")
 #Code results for dim(test_set) after semi_joins with train_set: [1] 19331     7
 #This process as excluded 671 rows that were present in training set from test set
+
+###################################################################
+### END: This group of code prepares subsets of edx data set for analysis and testing of lm() execution results
+### The comment has been added by Khaliun.B 2021.05.03
+###################################################################
