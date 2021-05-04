@@ -9,6 +9,11 @@
 ### Original code has been provided by edx course
 ###################################################################
 
+#This part of the code records a start time for script running timing log
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###dpST_TM<-Sys.time()
+#
+
 # This part of the code installs required packages for the project if not installed previously: Commented by Khaliun.B 2021.04.11 
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
@@ -126,34 +131,93 @@ RMSE <- function(true_ratings, predicted_ratings){
 ###################################################################
 ### BEGIN: This group of code prepares subsets of edx data set for analysis and testing of lm() execution results
 ### The comment has been added by Khaliun.B 2021.05.03
-### (!) We don't need this group of code to run for the final RMSE
-### Therefore all the code had been commented out with triple hashtag ### after knitting the Final Report PDF
-### Please remove the triple hashtag ### from the code if you would like to knit the report
 ###################################################################
 
 #This part of the code divides movielens data into
 # 80%:20% training set named "train_set" and test set named "train_set": Commented by Khaliun.B 2021.04.12
-###set.seed(755)
-###sample_edx<-edx%>%select(userId, movieId,rating, timestamp,title,genres) #Code is alternately used for data analysis purposes: Commented by Khaliun.B 2021.05.04
+set.seed(755)
+sample_edx<-edx%>%select(userId, movieId,rating, timestamp,title,genres) #Code is alternately used for data analysis purposes: Commented by Khaliun.B 2021.05.04
 ###sample_edx<-sample_n(edx,100000) #Code is alternately used for data analysis purposes (not used for report knitting): Commented by Khaliun.B 2021.05.04
 
-###test_index <- createDataPartition(y = sample_edx$rating, times = 1,
-###                                  p = 0.2, list = FALSE)
-###train_set <- sample_edx[-test_index,]
-###test_set <- sample_edx[test_index,]
-#Code results for length(test_index); total length of test_index: [1] 20002
-#Code results for dim(train_set); training set has 80'002 rows and 7 columns: [1] 80002     7
-#Code results for dim(test_set); test set has 20'002 rows and 7 columns: [1] 20002     7
+test_index <- createDataPartition(y = sample_edx$rating, times = 1,
+                                  p = 0.2, list = FALSE)
+train_set <- sample_edx[-test_index,]
+test_set <- sample_edx[test_index,]
 
 #This part of the code does the semi-joins test_set with training set first using movieId
 #and second using userId: Commented by Khaliun.B 2021.04.12
-###test_set <- test_set %>% 
-###  semi_join(train_set, by = "movieId") %>%
-###  semi_join(train_set, by = "userId")
-#Code results for dim(test_set) after semi_joins with train_set: [1] 19331     7
-#This process as excluded 671 rows that were present in training set from test set
+test_set <- test_set %>% 
+  semi_join(train_set, by = "movieId") %>%
+  semi_join(train_set, by = "userId")
+
+#This part of the code records a end time for script running timing log
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###dpED_TM<-Sys.time()
+#
+
+#This part of the code creates a timing log for Data source prep script run time
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###timing_results <-data_frame(log="Data source prep script run time",
+###                            ST_TM = dpST_TM,
+###                            ED_TM = dpED_TM,
+###                            DURATION=difftime(dpED_TM,dpST_TM,units = "secs"))
+###timing_results %>% select(log,DURATION) %>% knitr::kable()
+#Results will be used for Final Report
 
 ###################################################################
 ### END: This group of code prepares subsets of edx data set for analysis and testing of lm() execution results
 ### The comment has been added by Khaliun.B 2021.05.03
 ###################################################################
+
+###################################################################
+#### This further part of the file holds the script that is based on the edx data set and will not use final validation data set
+#### Commented by Khaliun.B 2021.05.04
+
+########### CHECKLIST FROM INSTRUCTIONS to follow: ########################
+#### According to the MovieLens project instructions
+#### (!) Second, you will train a machine learning algorithm using the inputs in one subset to predict movie ratings in the validation set.
+#### 25 points: RMSE < 0.86490
+
+#### (!) You should split the edx data into separate training and test sets to design and test your algorithm: Done
+#### (!) The validation data (the final hold-out test set) should NOT be used for training, developing, or selecting your algorithm and it should ONLY be used for evaluating the RMSE of your final algorithm: Done
+###########################################################################
+
+###########################################################################
+### BEGIN: This chunk of code is training Linear model with Regularized Movie Effect + User Effect model
+### on edx data set and compares the prediction results with validation data set to calculate final RMSE.
+### (!) We are using lamdbda value of 4.75 gained from analysis of edx data
+### For complete tuning process of lambda value please refer to code file MovieLensAnalysisScript_DataExploration.R
+### Analysis results are also included in Final Report. Please refer to file MovieLensAnalysisReport.pdf 
+###########################################################################
+
+#This part of the code records a start time for script running timing log
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###trST_TM<-Sys.time()
+#
+
+#This part of the code trains edx data set with lm() model and stores results into variable fit_lm: Commented by Khaliun.B 2021.05.04
+fit_lm <-  lm(rating ~ pred,data=edx)
+#This part of the code predicts the rating using validation data set and fit_lm model and stores results into variable predicted_lm: Commented by Khaliun.B 2021.05.04
+predicted_lm <- predict(fit_lm, newdata=validation)
+
+#This part of the code records a end time for script running timing log
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###trED_TM<-Sys.time()
+#
+
+#This part of the code creates a timing log for Data source prep script run time
+#Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
+###timing_results <-bind_rows(timing_results,data_frame(log="Edx Data set training script run time",
+###                                                     ST_TM = trST_TM,
+###                                                     ED_TM = trED_TM,
+###                                                     DURATION=difftime(trED_TM,trST_TM,units = "secs")))
+###timing_results %>% select(log,DURATION) %>% knitr::kable()
+#Results will be used for Final Report
+
+#This part of the code calculates RMSE for predictions and validation$rating
+RMSE(validation$rating, predicted_lm)
+#Final RMSE value: [1] 0.8648617
+
+###########################################################################
+### END: This chunk of code is training Linear model with Regularized Movie Effect + User Effect model 
+###########################################################################

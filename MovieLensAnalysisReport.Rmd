@@ -62,14 +62,11 @@ Project uses **MovieLens 10M** data set. The original code from provided by the 
 
 Project files will be uploaded for review and grading by peers to Edx course section. Uploaded Files Include:
  
-* RMarkdown Report File - "MovieLensAnalysisReport.Rmd"
-* R Script File - for convenience, R scripts include
-                + MovieLensAnalysisScripts.R - which contains data preparation scripts
-                + MovieLensAnalysisScripts_DataExploration.R - which contains analysis codes related to this report. (Please note that this file sources MovieLensAnalysisScripts.R for running).
-                + and MovieLensAnalysisScripts_RMSE_edx_dataset.R" that includes codes for model fitting and RMSE calculation for final model. (Please note that this file sources MovieLensAnalysisScripts.R for running).
+* RMarkdown Report File - "MovieLensAnalysisReport.Rmd" (Please note that this file sources MovieLensAnalysisScripts.R for running. You can find the code file in [*MovieLensCodes Github Repository*](https://github.com/khaliunb/MovieLensCodes.git)). Some alterations to the MovieLensAnalysisScripts.R are necessary if you should knit the report again.
+* R Script File - "MovieLensAnalysisScripts.R" that includes codes and comments for model fitting and RMSE calculation for final model
 * PDF Report - "MovieLensAnalysisReport.pdf"
 
-For convenience purposes, total runing time of each model fitting algorithm had been included in Result section of this report.
+For convenience purposes, total running time of each model fitting algorithm had been included in Result section of this report.
  
 All the files have been also uploaded to [*MovieLensCodes Github Repository*](https://github.com/khaliunb/MovieLensCodes.git) 
 
