@@ -19,7 +19,7 @@
 
 #This part of the code records a start time for script running timing log
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-dpST_TM<-Sys.time()
+###dpST_TM<-Sys.time()
 #
 
 #This part of the code runs data preparation script from R script file MovieLensAnalysisScripts.R
@@ -28,16 +28,16 @@ source("MovieLensAnalysisScripts.R", local = knitr::knit_global())
 
 #This part of the code records a end time for script running timing log
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-dpED_TM<-Sys.time()
+###dpED_TM<-Sys.time()
 #
 
 #This part of the code creates a timing log for Data source prep script run time
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-timing_results <-data_frame(log="Data source prep script run time",
-                            ST_TM = dpST_TM,
-                            ED_TM = dpED_TM,
-                            DURATION=difftime(dpED_TM,dpST_TM,units = "secs"))
-timing_results %>% select(log,DURATION) %>% knitr::kable()
+###timing_results <-data_frame(log="Data source prep script run time",
+###                            ST_TM = dpST_TM,
+###                            ED_TM = dpED_TM,
+###                            DURATION=difftime(dpED_TM,dpST_TM,units = "secs"))
+###timing_results %>% select(log,DURATION) %>% knitr::kable()
 #Results will be used for Final Report
 
 ###########################################################################
@@ -54,7 +54,7 @@ timing_results %>% select(log,DURATION) %>% knitr::kable()
 
 #This part of the code records a start time for script running timing log
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-trST_TM<-Sys.time()
+###trST_TM<-Sys.time()
 #
 
 #This part of the code trains edx data set with lm() model and stores results into variable fit_lm: Commented by Khaliun.B 2021.05.04
@@ -64,16 +64,16 @@ predicted_lm <- predict(fit_lm, newdata=validation)
 
 #This part of the code records a end time for script running timing log
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-trED_TM<-Sys.time()
+###trED_TM<-Sys.time()
 #
 
 #This part of the code creates a timing log for Data source prep script run time
 #Code has been commented out with triple hashtag ###: : Commented by Khaliun.B 2021.05.04
-timing_results <-bind_rows(timing_results,data_frame(log="Edx Data set training script run time",
-                                                     ST_TM = trST_TM,
-                                                     ED_TM = trED_TM,
-                                                     DURATION=difftime(trED_TM,trST_TM,units = "secs")))
-timing_results %>% select(log,DURATION) %>% knitr::kable()
+###timing_results <-bind_rows(timing_results,data_frame(log="Edx Data set training script run time",
+###                                                     ST_TM = trST_TM,
+###                                                     ED_TM = trED_TM,
+###                                                     DURATION=difftime(trED_TM,trST_TM,units = "secs")))
+###timing_results %>% select(log,DURATION) %>% knitr::kable()
 #Results will be used for Final Report
 
 #This part of the code calculates RMSE for predictions and validation$rating

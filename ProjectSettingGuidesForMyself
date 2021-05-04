@@ -349,3 +349,10 @@ sudo apt-get install texlive-latex-extra
 ---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files with comment "Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD report amended before knitting Final Report pdf. Commited by Khaliun.B 2021.05.04 17:29."
 -1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
 -2. Push files
+#####################################
+### Khaliun.B 2021.05.04 22:28###
+### Polished the report, finalizing the project
+#####################################
+--- Formatted the report and knit the final report PDF file.
+--- Commenting all the unnecessary parts of the code in MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
+

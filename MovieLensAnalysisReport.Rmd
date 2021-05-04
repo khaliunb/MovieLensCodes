@@ -1,8 +1,37 @@
 ---
-title: "Capstone MovieLens Project Analysis Report"
+title: "MovieLens Project Final Report"
 author: "Khaliun Bat-Ochir"
-date: "4/6/2021"
-output: pdf_document
+date: "May 4th, 2021"
+emails:
+  - "khaliun83@yahoo.com"
+  - "khaliun@spoon.mn"
+linkedin: "https://www.linkedin.com/in/khaliun-bat-ochir-334925b4/"
+info_program: "Data Science Professional Certificate Program"
+info_institution: "HarvardX and online initiative by Harvard University"
+info_course: "Capstone Course"
+output:
+  pdf_document:
+    extra_dependencies: "subfig"
+    toc: true
+    toc_depth: 3
+    number_sections: true
+  word_document: default
+papersize: a4
+linestretch: 1.5
+fontsize: 10pt
+links-as-notes: true
+bibliography: ["csl/references.bib"]
+link-citations: yes
+csl: "csl/harvard-the-university-of-sheffield-town-and-regional-planning.csl"
+header-includes:
+  - \usepackage{titling}
+  - \pretitle{\begin{center}
+    \includegraphics[width=2in,height=2in]{images/HarvardXLogo.jpeg}\LARGE\\}
+  - \posttitle{\end{center}}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyfoot[CO,CE]{Page Number}
+  - \fancyfoot[LE,RO]{\thepage}
 ---
 
 ```{r setup, include=FALSE}
@@ -13,21 +42,23 @@ knitr::opts_chunk$set(echo = TRUE)
 source("MovieLensAnalysisScripts.R", local = knitr::knit_global())
 ```
 
-# 1. Overview
+\newpage
 
-This is the final Report for Movielens Recommendataion system project for Capstone Course from HarvardX Data Science Professional Certificate program prepared by Khaliun Bat-Ochir.
+# Overview
+
+This is the `r rmarkdown::metadata$title` for `r rmarkdown::metadata$info_course` from `r rmarkdown::metadata$info_program` offered by `r rmarkdown::metadata$info_institution` prepared by `r rmarkdown::metadata$author`.
 
 Final Report includes methodology and results of the project including RMSE calculation. Also, this report includes project environment description used for building and running the code.
 
-## 1.1. Project Goal
+## Project Goal
 
 This is a Machine Learning project. Goal of the project consists in analysing **MovieLens 10M** and training data with chosen Machine Learning algorithm and reaching RMSE below 0.86490.
 
-## 1.2. Project Data
+## Project Data
 
 Project uses **MovieLens 10M** data set. The original code from provided by the instruction for Movielens Recommendation system project for Capstone Course downloads original data and as a [*Zip File*](http://files.grouplens.org/datasets/movielens/ml-10m.zip). Code then processes separate two files named **ratings** and **movies** included in the zip file that are joined together by "movieId" field.
 
-## 1.3. Project Files
+## Project Files
 
 Project files will be uploaded for review and grading by peers to Edx course section. Uploaded Files Include:
  
@@ -42,7 +73,7 @@ For convenience purposes, total runing time of each model fitting algorithm had 
  
 All the files have been also uploaded to [*MovieLensCodes Github Repository*](https://github.com/khaliunb/MovieLensCodes.git) 
 
-## 1.4. Project Environment
+## Project Environment
 
 Codes for the project were built and tested using:
 
@@ -50,9 +81,11 @@ Codes for the project were built and tested using:
 + RStudio Version 1.3.1073
 + Linux Ubuntu 20.04
 
-# 2. Method
+\newpage
 
-## 2.1. Original Code and Data Set Preparation
+# Method
+
+## Original Code and Data Set Preparation
 
 Original code divides downloaded data set into following two subsets:
 
@@ -61,21 +94,25 @@ Original code divides downloaded data set into following two subsets:
 
 Furthermore, **edx** data set had been matched with **validation** data set and all recurring data had been removed from **validation** data set.
 
+Finally, the code removes temporary data sets (dl, ratings, movies, test_index, temp, movielens, removed) that were used to prepare **edx** and **validation** data sets.
+
+Summary of **edx** data set:
+
 ```{r (edx)}
 summary(edx%>%select(userId, movieId,rating, timestamp,title,genres))
 ```
 
-```{r (validation)}
+Summary of **validation** data set:
+
+```{r (validation), echo=FALSE}
 summary(validation%>%select(userId, movieId,rating, timestamp,title,genres))
 ```
 
-Finally, the code removes temporary data sets (dl, ratings, movies, test_index, temp, movielens, removed) that were used to prepare **edx** and **validation** data sets.
-
 Note: Only **edx** data set have been used for data exploration, model fitting and training the data. **validation** data set will be used for final results and RMSE calculation.
 
-## 2.2. Data Exploration and Sampling method
+## Data Exploration and Sampling method
 
-### 2.2.1. Linear model analysis data
+### Linear model analysis data
 
 Linear model analysis used for Machine Learning course will be applied for complete **edx** data set and results will be used for final model.
 
@@ -90,33 +127,39 @@ However, the results were inconclusive as the sample data did not represent the 
 
 Furthermore, **train_set** data set had been matched with **test_set** data set and all recurring data had been removed from **validation** data set.
 
-```{r (train_set)}
+Summary of **train_set**:
+
+```{r (train_set), echo=FALSE}
 summary(train_set)
 ```
 
-```{r (test_set)}
+Summary of **test_set**:
+
+```{r (test_set), echo=FALSE}
 summary(test_set)
 ```
 
-## 2.3. Failures and Insights gained
+## Failures and Insights gained
 
 Kmeans clustering have been tried for grouping movies into relevant groups as an attempt to replicate PCA analysis and incorporated the group ids to **edx** data set. However, the final RMSE for movie group model is 0.99 and does not go down for any values of k. Therefore the approach have been dropped. Code performing this analysis have been commented out in file * MovieAnalysisScripts_DataExploration.R *
 
-## 2.4. Model fitting and RMSE approach
+## Model fitting and RMSE approach
 
 Regularized movie and user effect model have be used for final model. For this, we will be using full cross-validation with **train_set** and **test_set** data sets for *lambda* parameter tuning. From there, minimum value of RMSE achieving *lambda* will be used final model training on **edx** data set.
 
 For Final RMSE **validation** set will be used.
 
-# 3. Result
+\newpage
+
+# Results
 
 Note: Results section contains plots and summary results present in code file *MovieAnalysisScripts_DataExploration.R* You can find relevant comments as a description for each result in this file.
 
-## 3.1. Linear model performance
+## Linear model performance
 
-We are getting a peek into full *edx* data set. For this, we are summarizing number of users and movies present in the data set.
+We are getting a peek into full **edx** data set. For this, we are summarizing number of users and movies present in the data set.
 
-```{r edx-user-movies-number}
+```{r edx-user-movies-number, echo=FALSE}
 edx %>%
   summarize(n_users = n_distinct(userId),
             n_movies = n_distinct(movieId))
@@ -157,10 +200,9 @@ Top 5 most rated movies' ratings in movielens data and transposes the title and 
 tab %>% knitr::kable()
 ```
 
-```{r ratings-spread-plot, echo=FALSE}
+```{r ratings-spread-plot, fig.align='center', fig.cap='Imaging of the movies and users rating in 100 pixels', out.width="50%", echo=FALSE}
 users <- sample(unique(edx$userId), 100)
-
-#rafalib::mypar()
+par(mar = c(4, 4, .1, .1))
 edx %>% filter(userId %in% users) %>% 
   select(userId, movieId, rating) %>%
   mutate(rating = 1) %>%
@@ -171,31 +213,29 @@ edx %>% filter(userId %in% users) %>%
 abline(h=0:100+0.5, v=0:100+0.5, col = "grey")
 ```
 
-Plot counts number of times each movieId is rated and creates geom_histogram which scales the number of movies by log10
+We are showing the density plots for distribution of Movies and Users ratings.
 
-```{r movies-plot, echo=FALSE}
+```{r, fig.cap='Density Plots for Rating: (a) Movies (b) Users', fig.subcap=c('Movies Ratings Density', 'Users Ratings Density'), figures-side, fig.show="hold", out.width="50%", echo=FALSE}
+par(mar = c(4, 4, .1, .1))
 edx %>% 
   dplyr::count(movieId) %>% 
   ggplot(aes(n)) + 
   geom_histogram(bins = 30, color = "black") + 
   scale_x_log10() + 
   ggtitle("Movies")
-```
 
-Plot counts number of times each userId is rated and creates geom_histogram which scales the number of users who had given ratings by log10
-
-```{r users-plot, echo=FALSE}
 edx %>%
   dplyr::count(userId) %>% 
   ggplot(aes(n)) + 
   geom_histogram(bins = 30, color = "black") + 
   scale_x_log10() +
   ggtitle("Users")
-```  
+```
+As we can see, the (b) Users Ratings Density plot differs from the Machine Learning course analysis results. Users are no longer rating mostly 1 time. This can be attributed to the fact that we are using more complete data set *MovieLens10M*.
 
-### 3.1.1. lambda value
+### lambda value
 
-We will remember that λ is a tuning parameter. Therefore we will use cross-validation to choose it and apply the final minimum RMSE value of λ for final training.
+We will remember that *lambda* is a tuning parameter. Therefore we will use cross-validation to choose it and apply the final minimum RMSE value of *lambda* for final training.
 
 ```{r linear-model-rmse, include=FALSE}
 lambdas <- seq(0, 10, 0.25)
@@ -225,7 +265,7 @@ rmse_results <-data_frame(method="Regularized Movie + User Effect Model",
                                      RMSE = min(rmses))
 ```
 
-```{r lambda-qplot, echo=FALSE}
+```{r lambda-qplot, fig.align='center', fig.cap='Qplot: Lambda against RMSE', out.width="50%", echo=FALSE}
 qplot(lambdas, rmses)
 ```
 
@@ -236,25 +276,25 @@ lambda
 ```
 This value we will incorporate in the actual training of the linear model.
 
-### 3.1.2. Regularized Movie + User Effect model RMSE
+### Regularized Movie + User Effect model RMSE
 
-Results for minimum RMSE for Regularized Movie + User Effect is as follows:
+Result for minimum RMSE gained from tuning lambda for Regularized Movie + User Effect is as follows:
 
 ```{r lambda-min-rmse-value, echo=FALSE}
 rmse_results %>% knitr::kable()
 ```
 
-### 3.4. Final results, steps and timing of training on **edx** data set
+## Final results, steps and timing of training on **edx** data set
 
 We are using the *lambda* value gained using cross validation. We are incorporating the *mu*, *b_i*, *b_u*, *pred* features back into **edx** and **validation** data sets in file **MovieLensAnalysisScripts.R**. We will be only using *pred* feature for prediction and training Data preparation script runs approximately 2 minutes.
 
-Then, we are and fitting the model using *lm()* in file **MovieLensAnalysisScripts_RMSE_edx_dataset.R**.
+Then, we are fitting the model using *lm()* in file **MovieLensAnalysisScripts_RMSE_edx_dataset.R**.
 
 Training of complete **edx** set was performed. Final RMSE is as follows:
 
 ```{r final-rmse-value, echo=FALSE}
 final_rmse_results <-data_frame(data_frame(method="Regularized Movie + User Effect Model",
-                          FINAL_RMSE = 0.8648617))
+                          FINAL_RMSE = "0.8648617"))
 final_rmse_results %>% knitr::kable()
 ```
 
@@ -268,6 +308,33 @@ timing_results %>% knitr::kable()
 
 However, we should note that running time depends on the environment.
 
-# 4. Conclusion
+\newpage
 
-For final result, Regularized movie and user effect model have been used. Final RMSE is *0.8648617*. Achieved RMSE < 0.86490.
+# Conclusion
+
+For final result, Regularized movie and user effect model have been used. Final RMSE is *0.8648617*. Achieved project goal of **RMSE < 0.86490**.
+
+\newpage
+
+# Contact Information {-}
+
+If you have any questions regarding the project, please feel free to contact me at any of my emails: *`r rmarkdown::metadata$emails`*; or feel free to visit my [*Linkedin Profile*](`r rmarkdown::metadata$linkedin`)
+
+# References {-}
+
+## Books {-}
+
+* @HarvardXDataScienceProgramTextbook
+* @RMarkdownCookbook
+
+## Articles {-}
+
+* @kmeansclustering
+
+## Manuals {-}
+
+* @R-base
+* @R-dplyr
+* @R-ggplot2
+* @R-tidyverse
+* @lm
