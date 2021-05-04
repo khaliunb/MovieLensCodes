@@ -345,3 +345,7 @@ sudo apt-get install texlive-latex-extra
 ---upload MovieLensAnalysisScript_RMSE_edx_dataset.R files with comment "Commit MovieLensAnalysisScript_RMSE_edx_dataset.R,  MovieLensAnalysisReport.RMD files, before knitting Final Report pdf. MovieLensAnalysisScript_RMSE_edx_dataset.R files. Commited by Khaliun.B 2021.05.04 16:14."
 -1. Commit MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
 -2. Push files
+--- Successfully uploaded MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files to the Github
+---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files with comment "Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD report amended before knitting Final Report pdf. Commited by Khaliun.B 2021.05.04 17:29."
+-1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
+-2. Push files

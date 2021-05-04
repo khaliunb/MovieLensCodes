@@ -62,11 +62,11 @@ Original code divides downloaded data set into following two subsets:
 Furthermore, **edx** data set had been matched with **validation** data set and all recurring data had been removed from **validation** data set.
 
 ```{r (edx)}
-summary(edx)
+summary(edx%>%select(userId, movieId,rating, timestamp,title,genres))
 ```
 
 ```{r (validation)}
-summary(validation)
+summary(validation%>%select(userId, movieId,rating, timestamp,title,genres))
 ```
 
 Finally, the code removes temporary data sets (dl, ratings, movies, test_index, temp, movielens, removed) that were used to prepare **edx** and **validation** data sets.
@@ -240,22 +240,34 @@ This value we will incorporate in the actual training of the linear model.
 
 Results for minimum RMSE for Regularized Movie + User Effect is as follows:
 
-```{r, echo=FALSE}
+```{r lambda-min-rmse-value, echo=FALSE}
 rmse_results %>% knitr::kable()
 ```
 
 ### 3.4. Final results, steps and timing of training on **edx** data set
 
-We are using the *lambda* value gained using cross validation. We are incorporating the *mu*, *b_i*, *b_u*, *pred* features back into **edx** and **validation** data sets in file **MovieLensAnalysisScripts.R**. We will be only using *pred* feature for prediction and training Data preparation script runs approximately 5 minutes.
+We are using the *lambda* value gained using cross validation. We are incorporating the *mu*, *b_i*, *b_u*, *pred* features back into **edx** and **validation** data sets in file **MovieLensAnalysisScripts.R**. We will be only using *pred* feature for prediction and training Data preparation script runs approximately 2 minutes.
 
 Then, we are and fitting the model using *lm()* in file **MovieLensAnalysisScripts_RMSE_edx_dataset.R**.
 
-Training of complete **edx** set was performed. Total time of execution took less than a second.
+Training of complete **edx** set was performed. Final RMSE is as follows:
 
+```{r final-rmse-value, echo=FALSE}
+final_rmse_results <-data_frame(data_frame(method="Regularized Movie + User Effect Model",
+                          FINAL_RMSE = 0.8648617))
+final_rmse_results %>% knitr::kable()
+```
 
+Total time of execution took a second.
 
-Final RMSE is *0.8648617*
+```{r timing-results, echo=FALSE}
+timing_results <-data_frame(log=c("Data source prep script run time","Edx Data set training script run time"),
+                            DURATION=c("132.39938 secs","1.17256 secs"))
+timing_results %>% knitr::kable()
+```
+
+However, we should note that running time depends on the environment.
 
 # 4. Conclusion
 
-For final result, Regularized movie and user effect model have been used. Final RMSE is *0.8648617*.
+For final result, Regularized movie and user effect model have been used. Final RMSE is *0.8648617*. Achieved RMSE < 0.86490.

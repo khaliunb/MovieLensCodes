@@ -361,8 +361,7 @@ rmses <- sapply(lambdas, function(l){
     test_set %>% 
     left_join(b_i, by = "movieId") %>%
     left_join(b_u, by = "userId") %>%
-    left_join(b_r, by = "rating") %>%
-    mutate(pred = mu + b_i + b_u + b_r) %>%
+    mutate(pred = mu + b_i + b_u) %>%
     .$pred
   return(RMSE(predicted_ratings, test_set$rating))
 })
