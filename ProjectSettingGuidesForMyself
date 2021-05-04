@@ -333,3 +333,15 @@ sudo apt-get install texlive-latex-extra
 ---upload MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files with comment "Commit the final RMSE calculation scripts with MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files. Commited by Khaliun.B 2021.05.03 20:43."
 -1. Commit MovieLensAnalysisScript.R, MovieLensAnalysisScript_RMSE_edx_dataset.R files
 -2. Push files
+#####################################
+### :) TOMMOROW, WE ARE FINALIZING THE REPORT, KNITTING THE PDF FILE AND UPLOADING THE PROJECT INTO EDX
+#####################################
+#####################################
+### Khaliun.B 2021.05.04 16:09###
+### Working on polishing the report
+#####################################
+--- Polished the Final report as well as I could. Adding the timing log for the training and RMSE script. Will add the results of the timing log before knitting the final report pdf. However, the Ubuntu is glitching, so better upload the scripts to the github just to be safe.
+--- Successfully uploaded MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files to the Github
+---upload MovieLensAnalysisScript_RMSE_edx_dataset.R files with comment "Commit MovieLensAnalysisScript_RMSE_edx_dataset.R,  MovieLensAnalysisReport.RMD files, before knitting Final Report pdf. MovieLensAnalysisScript_RMSE_edx_dataset.R files. Commited by Khaliun.B 2021.05.04 16:14."
+-1. Commit MovieLensAnalysisScript_RMSE_edx_dataset.R, MovieLensAnalysisReport.RMD files
+-2. Push files
